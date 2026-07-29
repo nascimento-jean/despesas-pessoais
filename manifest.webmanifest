@@ -1,0 +1,16 @@
+{
+  "name": "Despesas Pessoais",
+  "short_name": "Despesas",
+  "description": "Controle sua renda, despesas, investimentos e orÃ§amento pessoal.",
+  "id": "/despesas-pessoais/",
+  "start_url": "/despesas-pessoais/",
+  "scope": "/despesas-pessoais/",
+  "display": "standalone",
+  "background_color": "#f6f5fa",
+  "theme_color": "#1c1730",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "./icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
+
