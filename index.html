@@ -3,165 +3,104 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#1c1730">
-  <meta name="description" content="Controle sua renda, despesas, investimentos e orçamento pessoal.">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Despesas">
+  <meta name="theme-color" content="#171329">
+  <meta name="description" content="Controle mensal de renda, despesas, cartões, metas e investimentos.">
+  <title>Despesas Pessoais</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icon.svg">
-  <title>Despesas Pessoais — Seu dinheiro, com clareza</title>
+  <link rel="icon" href="./icon.svg">
+  <link rel="stylesheet" href="./styles.css">
   <style>
-    :root{--ink:#1c1730;--muted:#777386;--paper:#f6f5fa;--purple:#7c5cff;--line:#e9e7ef;--mint:#20bfa9;--coral:#ff9364}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}
-    .topbar{height:74px;display:flex;align-items:center;justify-content:space-between;gap:28px;padding:0 clamp(20px,5vw,78px);background:#fffffff2;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;backdrop-filter:blur(18px)}
-    .brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-size:17px}.brand strong{color:var(--purple)}.mark{width:32px;height:32px;border-radius:10px;background:var(--ink);display:grid;place-items:center;transform:rotate(-7deg)}.mark:after{content:"";width:13px;height:13px;border:4px solid #fff;border-top-color:var(--purple);border-radius:50%}
-    nav{display:flex;height:100%;gap:32px}nav a{display:grid;place-items:center;color:#777386;text-decoration:none;font-size:12px;font-weight:750;position:relative}nav a:first-child{color:var(--ink)}nav a:first-child:after{content:"";height:3px;border-radius:3px;background:var(--purple);position:absolute;bottom:0;left:2px;right:2px}.install{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:9px 13px;font-weight:800;font-size:11px}
-    .page{max-width:1320px;margin:auto;padding:56px clamp(18px,4vw,56px) 82px}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:38px}.eyebrow{display:block;color:var(--purple);font-size:9px;letter-spacing:2px;font-weight:900;margin-bottom:12px}.hero h1{font-size:clamp(38px,4.2vw,61px);line-height:1.03;letter-spacing:-3.2px;margin:0 0 16px}.hero h1 em{color:var(--purple);font-style:normal}.hero p{color:var(--muted);margin:0;max-width:550px;font-size:13px;line-height:1.7}.actions{display:flex;gap:10px;flex-wrap:wrap}.primary,.secondary{border:0;border-radius:12px;padding:13px 17px;font-weight:800;font-size:11px}.primary{background:var(--purple);color:#fff;box-shadow:0 9px 24px #7c5cff40}.secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
-    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:18px}.card,.panel{background:#fff;border:1px solid var(--line);border-radius:19px;box-shadow:0 8px 30px #1f183608}.card{min-height:174px;padding:19px;display:flex;flex-direction:column}.cardTop{display:flex;justify-content:space-between;margin-bottom:22px}.cardIcon{width:35px;height:35px;border-radius:10px;display:grid;place-items:center;background:#e9fbf7;color:#159985;font-weight:900}.cardIcon.purple{background:#f0edff;color:var(--purple)}.cardIcon.gold{background:#fff5d8;color:#c98d13}.cardIcon.dark{background:#312b44;color:#fff}.pill{font-size:8px;padding:5px 7px;border-radius:7px;background:#edf8f4;color:#149984;font-weight:900;border:0}.card label{color:var(--muted);font-size:10px}.card>strong{font-size:23px;letter-spacing:-1px;margin-top:3px}.card small{color:#aaa6b3;margin-top:auto;font-size:8px}.card.invest{background:linear-gradient(145deg,#fffdf7,#fff8e5);border-color:#f2e5bd}.card.balance{background:var(--ink);color:#fff;border-color:var(--ink)}.card.balance label,.card.balance small{color:#ada7bc}.bar{height:5px;background:#efedf3;border-radius:5px;margin-top:auto;overflow:hidden}.bar span{display:block;height:100%;background:var(--mint);border-radius:5px}
-    .grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;margin-bottom:18px}.panel{padding:24px;scroll-margin-top:90px}.panelHead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}.panel h2{font-size:17px;letter-spacing:-.5px;margin:0}.chartWrap{display:flex;align-items:center;justify-content:space-around;gap:34px;min-height:220px}.donut{width:180px;height:180px;border-radius:50%;display:grid;place-items:center;flex:none}.donut>div{width:112px;height:112px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 5px 22px #221b3a12}.donut small{font-size:8px;color:var(--muted)}.donut strong{font-size:15px}.legend{width:100%;max-width:285px}.legendRow{display:grid;grid-template-columns:8px 1fr auto 28px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #f1eff4;font-size:9px}.dot{width:7px;height:7px;border-radius:50%}.legendRow small{text-align:right;color:#aaa6b3}
-    .billList{display:grid;gap:5px}.bill{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;background:transparent;border:0;border-radius:11px;text-align:left;padding:8px}.bill:hover{background:#f8f7fa}.billIcon{width:35px;height:35px;border-radius:10px;display:grid;place-items:center;font-weight:900}.bill span:nth-child(2){display:flex;flex-direction:column;gap:3px}.bill strong,.bill b{font-size:9px}.bill small{font-size:8px;color:#aaa6b3}
-    .tableHead{align-items:center}.tools{display:flex;gap:8px}.tools input,.tools select{height:35px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:0 10px;font-size:9px}.rows{overflow:auto}.row{display:grid;grid-template-columns:1.7fr 1fr .9fr .8fr .8fr 22px;gap:12px;align-items:center;min-width:680px;min-height:51px;border-top:1px solid #f0eef4;color:#726e7f;font-size:9px}.row.head{min-height:29px;border:0;color:#aaa6b3;font-size:7px;font-weight:900;letter-spacing:.5px}.row>strong{text-align:right;color:var(--ink)}.name{display:flex;align-items:center;gap:9px;color:var(--ink);font-weight:800}.name i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-style:normal}.status{border:0;border-radius:7px;padding:5px 7px;font-size:7px;font-weight:900;width:max-content}.status.paid{background:#eaf9f4;color:#149984}.status.pending{background:#fff0e8;color:#df7541}.delete{border:0;background:transparent;font-size:17px;color:#9994a4}
-    .lower{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.lower p{color:var(--muted);font-size:10px;line-height:1.7}.reportBtns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}.reportBtns button{border:1px solid var(--line);background:#fbfafd;border-radius:12px;padding:12px;text-align:left;display:flex;gap:10px;align-items:center;font-size:9px}.file{width:31px;height:31px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:900}.xls{background:#1d9b72}.pdf{background:#ef5b63}.reportBtns span:nth-child(2){display:flex;flex-direction:column;gap:3px}.reportBtns small{color:#aaa6b3}
-    .assistant{border-radius:19px;padding:24px;color:#fff;background:linear-gradient(135deg,#201936,#3e2e69);position:relative;overflow:hidden}.assistant .eyebrow{color:#c4b8ff}.assistant p{color:#cbc5dd}.chips{display:flex;flex-wrap:wrap;gap:7px}.chips button{border:1px solid #ffffff26;background:#ffffff12;color:#fff;padding:8px 9px;border-radius:8px;font-size:8px}.privacy{display:block;color:#938ba7;font-size:7px;margin-top:14px}
-    .modalBack{display:none;position:fixed;inset:0;z-index:50;background:#18122aa3;backdrop-filter:blur(8px);place-items:center;padding:18px}.modalBack.show{display:grid}.modal{width:min(550px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:23px;padding:29px;position:relative;box-shadow:0 30px 90px #100a2459}.close{position:absolute;right:16px;top:15px;border:0;background:#f1eff5;border-radius:8px;width:30px;height:30px;font-size:18px}.modal p{color:var(--muted);font-size:10px;line-height:1.6}.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.formGrid .wide{grid-column:1/-1}.modal label{display:flex;flex-direction:column;gap:6px;font-weight:750;font-size:9px;margin:16px 0}.formGrid label{margin:0}.modal input,.modal select{border:1px solid var(--line);border-radius:10px;padding:11px;outline:none;background:#fff}.checks{display:flex;gap:18px}.checks label{flex-direction:row}.checks input{width:auto}.full{width:100%}.toast{display:none;position:fixed;z-index:70;left:50%;bottom:25px;transform:translateX(-50%);padding:12px 17px;background:var(--ink);color:#fff;border-radius:11px;font-size:9px;font-weight:800;box-shadow:0 12px 35px #19132c4d}.toast.show{display:block}.mobileNav{display:none}
-    @media(max-width:1080px){.cards{grid-template-columns:repeat(3,1fr)}}@media(max-width:850px){nav{display:none}.grid,.lower{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
-    @media(max-width:620px){body{padding-bottom:70px}.topbar{height:63px;padding:0 16px}.page{padding:35px 14px}.hero{align-items:flex-start;flex-direction:column}.hero h1{font-size:39px;letter-spacing:-2.3px}.actions{width:100%}.actions button{flex:1}.actions .primary{flex-basis:100%}.cards{gap:9px}.card{min-height:155px;padding:15px}.card>strong{font-size:19px}.chartWrap{flex-direction:column}.legend{max-width:none}.panel{padding:19px 15px}.tableHead{flex-direction:column}.tools{width:100%}.tools input{flex:1;min-width:0}.reportBtns{grid-template-columns:1fr}.formGrid{grid-template-columns:1fr}.formGrid .wide{grid-column:auto}.mobileNav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fffffff5;border-top:1px solid var(--line);height:65px;padding-bottom:env(safe-area-inset-bottom)}.mobileNav a{display:flex;align-items:center;justify-content:center;flex-direction:column;color:#7f7a89;text-decoration:none;font-size:7px;gap:3px}.mobileNav b{font-size:16px}.toast{bottom:80px;width:calc(100% - 30px);text-align:center}}
-    @media(max-width:370px){.cards{grid-template-columns:1fr}}@media(display-mode:standalone){#installBtn{display:none!important}}@media print{.topbar,.hero,.actions,.tools,.lower,.mobileNav{display:none!important}.page{padding:12px}.card,.panel{box-shadow:none}}
+    body.dark{--ink:#f4f1ff;--muted:#aaa4ba;--line:#383348;--bg:#14111f;--white:#201c2d}
+    body.dark .topbar,body.dark .panel,body.dark .summarycard,body.dark .modal,body.dark .ghost,body.dark .secondary{background:#201c2d}
+    body.dark .donut:after{background:#201c2d}body.dark .tools input,body.dark .tools select,body.dark .quickentry input,body.dark .modal input,body.dark .modal select{background:#171422;color:#f4f1ff}
+    body.dark .quickentry,body.dark .reportgrid button,body.dark .rowactions button{background:#29243a;color:#f4f1ff}
+    body.dark .mobilenav{background:#201c2df2}
   </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="./app.js"></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#inicio"><span class="mark"></span><span>Despesas <strong>Pessoais</strong></span></a>
-    <nav><a href="#inicio">Visão geral</a><a href="#despesas">Despesas</a><a href="#relatorios">Relatórios</a><a href="#assistente">Assistente</a></nav>
-    <button class="install" id="installBtn">⇩ Instalar</button>
+    <a class="brand" href="#inicio"><span class="brandmark"><i></i></span><span>Despesas <b>Pessoais</b></span></a>
+    <nav>
+      <a href="#inicio">Visão geral</a><a href="#movimentos">Despesas</a><a href="#planejamento">Planejamento</a><a href="#relatorios">Relatórios</a><a href="#assistente">Assistente</a>
+    </nav>
+    <button class="ghost" id="themeBtn" aria-label="Alternar tema">◐</button><button class="ghost install" id="installBtn">⇩ Instalar</button>
   </header>
+
   <main class="page">
+    <section class="monthbar" aria-label="Selecionar mês">
+      <button id="prevMonth" aria-label="Mês anterior">‹</button>
+      <button class="monthpick" id="monthPick"><small>PERÍODO</small><strong id="monthLabel"></strong></button>
+      <button id="nextMonth" aria-label="Próximo mês">›</button>
+      <button class="today" id="currentMonth">Mês atual</button>
+    </section>
+
     <section class="hero" id="inicio">
-      <div><span class="eyebrow">SEU DINHEIRO, COM CLAREZA</span><h1>Olá! Vamos cuidar<br>das suas <em>finanças.</em></h1><p>Acompanhe sua renda, entenda seus gastos, planeje investimentos e tome decisões com tranquilidade.</p></div>
-      <div class="actions"><button class="secondary" data-open="income">Editar renda</button><button class="secondary" data-open="investment">Planejar investimento</button><button class="primary" data-open="expense">＋ Nova despesa</button></div>
+      <div><span class="eyebrow">SUA VIDA FINANCEIRA, ORGANIZADA</span><h1>Decisões melhores<br>começam com <em>clareza.</em></h1><p>Planeje o mês, acompanhe cartões, alcance metas e antecipe o impacto das suas escolhas.</p></div>
+      <div class="heroactions"><button class="secondary" data-action="income">Editar renda</button><button class="secondary" data-action="budget">Definir limites</button><button class="primary" data-action="expense">＋ Nova despesa</button></div>
     </section>
-    <section class="cards" id="summary"></section>
-    <section class="grid">
+
+    <section class="summary" id="summaryCards"></section>
+    <section class="alerts" id="alerts"></section>
+
+    <section class="grid2">
       <article class="panel">
-        <div class="panelHead"><div><span class="eyebrow">DISTRIBUIÇÃO</span><h2>Para onde vai seu dinheiro</h2></div></div>
-        <div class="chartWrap"><div class="donut" id="donut"><div><small>Total</small><strong id="donutTotal"></strong></div></div><div class="legend" id="legend"></div></div>
+        <header class="panelhead"><div><span class="eyebrow">DISTRIBUIÇÃO</span><h2>Para onde vai seu dinheiro</h2></div><span class="pill" id="expenseCount"></span></header>
+        <div class="chartarea"><div class="donut" id="donut"><div><small>Total</small><strong id="donutTotal"></strong></div></div><div class="legend" id="categoryLegend"></div></div>
       </article>
       <article class="panel">
-        <div class="panelHead"><div><span class="eyebrow">PRÓXIMOS DIAS</span><h2>Contas a pagar</h2></div><span class="pill" id="pendingCount"></span></div>
-        <div class="billList" id="bills"></div>
+        <header class="panelhead"><div><span class="eyebrow">LIMITES</span><h2>Orçamento por categoria</h2></div><button class="textbtn" data-action="budget">Configurar</button></header>
+        <div id="budgetProgress" class="budgetlist"></div>
       </article>
     </section>
-    <section class="panel" id="despesas">
-      <div class="panelHead tableHead"><div><span class="eyebrow">MOVIMENTAÇÕES</span><h2>Suas despesas</h2></div><div class="tools"><input id="search" placeholder="Buscar despesa"><select id="filter"><option>Todos</option><option>Pagos</option><option>Pendentes</option><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Lazer</option><option>Assinaturas</option><option>Outros</option></select></div></div>
-      <div class="rows"><div class="row head"><span>DESPESA</span><span>CATEGORIA</span><span>VENCIMENTO</span><span>STATUS</span><span>VALOR</span><span></span></div><div id="expenseRows"></div></div>
+
+    <section class="panel movements" id="movimentos">
+      <header class="panelhead responsive"><div><span class="eyebrow">MOVIMENTAÇÕES</span><h2>Despesas do mês</h2></div><div class="tools"><input id="search" placeholder="Buscar despesa"><select id="filter"><option>Todos</option><option>Pagos</option><option>Pendentes</option><option>Vencidos</option></select></div></header>
+      <div class="quickentry"><span>✦</span><input id="quickInput" placeholder='Ex.: "Gastei 85 no supermercado hoje"'><button id="quickAdd">Adicionar com IA</button></div>
+      <div class="table" id="expenseTable"></div>
     </section>
+
+    <section class="planning" id="planejamento">
+      <article class="panel">
+        <header class="panelhead"><div><span class="eyebrow">CARTÕES</span><h2>Faturas e limites</h2></div><button class="textbtn" data-action="card">＋ Cartão</button></header>
+        <div class="cardslist" id="cardsList"></div>
+      </article>
+      <article class="panel">
+        <header class="panelhead"><div><span class="eyebrow">OBJETIVOS</span><h2>Metas financeiras</h2></div><button class="textbtn" data-action="goal">＋ Meta</button></header>
+        <div class="goalslist" id="goalsList"></div>
+      </article>
+    </section>
+
+    <section class="panel forecast">
+      <header class="panelhead"><div><span class="eyebrow">HISTÓRICO</span><h2>Evolução dos últimos 6 meses</h2></div></header>
+      <div class="trendchart" id="trendChart"></div>
+    </section>
+
     <section class="lower">
-      <article class="panel" id="relatorios"><span class="eyebrow">SEUS DADOS, DO SEU JEITO</span><h2>Relatórios prontos para baixar</h2><p>Exporte um fechamento com despesas, situação, resumo do orçamento e planejamento de investimentos.</p><div class="reportBtns"><button id="excelBtn"><span class="file xls">X</span><span><strong>Planilha Excel</strong><small>Tabelas organizadas em .xlsx</small></span></button><button id="pdfBtn"><span class="file pdf">P</span><span><strong>Relatório PDF</strong><small>Resumo, gráfico e tabela</small></span></button></div></article>
-      <article class="assistant" id="assistente"><span class="eyebrow">✦ ANÁLISE INTELIGENTE LOCAL</span><h2>Seu assistente financeiro</h2><p id="assistantText"></p><div class="chips"><button data-question="summary">Resumir meu mês</button><button data-question="reduce">Onde posso reduzir?</button><button data-question="budget">Minha renda está comprometida?</button></div><small class="privacy">As análises são feitas no seu aparelho. Nenhum dado financeiro é enviado.</small></article>
+      <article class="panel reports" id="relatorios">
+        <span class="eyebrow">SEUS DADOS, SOB SEU CONTROLE</span><h2>Relatórios e segurança</h2><p>Exporte o mês, gere gráficos ou guarde uma cópia completa para trocar de aparelho sem perder informações.</p>
+        <div class="reportgrid">
+          <button id="excelBtn"><b class="file excel">X</b><span><strong>Excel</strong><small>Resumo e tabelas</small></span></button>
+          <button id="pdfBtn"><b class="file pdf">P</b><span><strong>PDF</strong><small>Gráficos e detalhes</small></span></button>
+          <button id="backupBtn"><b class="file backup">↧</b><span><strong>Backup</strong><small>Todos os dados</small></span></button>
+          <button id="restoreBtn"><b class="file restore">↥</b><span><strong>Restaurar</strong><small>Importar backup</small></span></button>
+          <button id="notifyBtn"><b class="file" style="background:#d89d15">◷</b><span><strong>Alertas</strong><small>Contas a vencer</small></span></button>
+        </div>
+        <input type="file" id="restoreFile" accept="application/json" hidden>
+      </article>
+      <article class="assistant" id="assistente">
+        <span class="aibadge">✦ ASSISTENTE FINANCEIRO</span><h2>Converse com seus números</h2>
+        <div class="aichat" id="aiChat"><div class="aimsg">Posso analisar seu mês, cadastrar gastos por texto, projetar metas e identificar riscos no orçamento.</div></div>
+        <div class="chips"><button data-prompt="Faça um diagnóstico do meu mês">Diagnóstico</button><button data-prompt="Onde posso economizar?">Economizar</button><button data-prompt="Como estão minhas metas?">Metas</button></div>
+        <div class="aiform"><input id="aiInput" placeholder="Pergunte sobre suas finanças"><button id="aiSend">Enviar</button></div>
+        <small class="privacy">Análises essenciais funcionam localmente e offline. Nenhuma chave fica exposta no aplicativo.</small>
+      </article>
     </section>
   </main>
-  <div class="mobileNav"><a href="#inicio"><b>⌂</b>Início</a><a href="#despesas"><b>↕</b>Despesas</a><a href="#relatorios"><b>▤</b>Relatórios</a><a href="#assistente"><b>✦</b>Assistente</a></div>
-  <div class="modalBack" id="modalBack"><section class="modal"><button class="close" id="closeModal">×</button><div id="modalContent"></div></section></div>
+
+  <nav class="mobilenav"><a href="#inicio">⌂<span>Início</span></a><a href="#movimentos">↕<span>Despesas</span></a><button data-action="expense">＋</button><a href="#planejamento">◇<span>Planejar</span></a><a href="#assistente">✦<span>Assistente</span></a></nav>
+  <div class="modalback" id="modalBack"><section class="modal" role="dialog" aria-modal="true"><button class="modalclose" id="modalClose">×</button><div id="modalContent"></div></section></div>
   <div class="toast" id="toast"></div>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script>
-    const CATS=[
-      {name:"Moradia",color:"#7c5cff",icon:"⌂"},{name:"Alimentação",color:"#ff9364",icon:"◒"},{name:"Transporte",color:"#20bfa9",icon:"↗"},{name:"Saúde",color:"#ff5f7f",icon:"+"},{name:"Educação",color:"#4f8cff",icon:"◇"},{name:"Lazer",color:"#f6bd41",icon:"✦"},{name:"Assinaturas",color:"#9c6ade",icon:"◎"},{name:"Outros",color:"#7b8794",icon:"••"}
-    ];
-    const DEMO=[
-      {id:"1",description:"Aluguel",category:"Moradia",value:1450,dueDate:"2026-07-05",paid:true,recurring:true,payment:"Pix"},
-      {id:"2",description:"Supermercado",category:"Alimentação",value:642.8,dueDate:"2026-07-12",paid:true,recurring:false,payment:"Crédito"},
-      {id:"3",description:"Energia elétrica",category:"Moradia",value:238.4,dueDate:"2026-07-18",paid:true,recurring:true,payment:"Débito"},
-      {id:"4",description:"Plano de saúde",category:"Saúde",value:485,dueDate:"2026-07-20",paid:false,recurring:true,payment:"Boleto"},
-      {id:"5",description:"Combustível",category:"Transporte",value:320,dueDate:"2026-07-22",paid:false,recurring:false,payment:"Crédito"},
-      {id:"6",description:"Internet e streaming",category:"Assinaturas",value:169.9,dueDate:"2026-07-25",paid:false,recurring:true,payment:"Crédito"},
-      {id:"7",description:"Curso de inglês",category:"Educação",value:280,dueDate:"2026-07-28",paid:false,recurring:true,payment:"Pix"}
-    ];
-    const saved=JSON.parse(localStorage.getItem("despesas-pessoais-github-v1")||"null");
-    let state=saved||{income:5200,investment:500,expenses:DEMO};
-    const money=v=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);
-    const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    const cat=n=>CATS.find(c=>c.name===n)||CATS.at(-1);
-    const persist=()=>localStorage.setItem("despesas-pessoais-github-v1",JSON.stringify(state));
-    const totals=()=>{const total=state.expenses.reduce((s,e)=>s+e.value,0),paid=state.expenses.filter(e=>e.paid).reduce((s,e)=>s+e.value,0);return{total,paid,pending:total-paid,balance:state.income-total-state.investment,committed:state.income?total/state.income*100:0,investRate:state.income?state.investment/state.income*100:0}};
-    function toast(msg){const t=document.querySelector("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000)}
-    function render(){
-      const t=totals();
-      document.querySelector("#summary").innerHTML=`
-        <article class="card"><div class="cardTop"><span class="cardIcon">↗</span><span class="pill">Renda</span></div><label>Renda mensal</label><strong>${money(state.income)}</strong><small>Disponível para julho</small></article>
-        <article class="card"><div class="cardTop"><span class="cardIcon purple">↓</span><span class="pill">${state.expenses.length} itens</span></div><label>Despesas do mês</label><strong>${money(t.total)}</strong><small>${money(t.pending)} ainda pendentes</small></article>
-        <article class="card"><div class="cardTop"><span class="cardIcon">◔</span><span class="pill">${t.committed.toFixed(0)}%</span></div><label>Renda comprometida</label><strong>${t.committed.toFixed(1).replace(".",",")}%</strong><div class="bar"><span style="width:${Math.min(t.committed,100)}%"></span></div></article>
-        <article class="card invest"><div class="cardTop"><span class="cardIcon gold">◆</span><button class="pill" data-open="investment">Editar</button></div><label>Para investimentos</label><strong>${money(state.investment)}</strong><small>${t.investRate.toFixed(1).replace(".",",")}% da renda reservada</small></article>
-        <article class="card balance"><div class="cardTop"><span class="cardIcon dark">◈</span><span class="pill">Livre</span></div><label>Saldo livre projetado</label><strong>${money(t.balance)}</strong><small>Após despesas e investimentos</small></article>`;
-      const by=CATS.map(c=>({...c,value:state.expenses.filter(e=>e.category===c.name).reduce((s,e)=>s+e.value,0)})).filter(c=>c.value).sort((a,b)=>b.value-a.value);
-      let start=0;const ring=by.map(c=>{const end=start+(c.value/t.total*100);const seg=`${c.color} ${start}% ${end}%`;start=end;return seg}).join(",");
-      document.querySelector("#donut").style.background=`conic-gradient(${ring||"#e9e7ef 0 100%"})`;document.querySelector("#donutTotal").textContent=money(t.total);
-      document.querySelector("#legend").innerHTML=by.map(c=>`<div class="legendRow"><i class="dot" style="background:${c.color}"></i><span>${c.name}</span><strong>${money(c.value)}</strong><small>${(c.value/t.total*100).toFixed(0)}%</small></div>`).join("");
-      const pending=state.expenses.filter(e=>!e.paid);document.querySelector("#pendingCount").textContent=`${pending.length} pendentes`;
-      document.querySelector("#bills").innerHTML=pending.slice(0,4).map(e=>{const c=cat(e.category);return`<button class="bill" data-pay="${e.id}"><span class="billIcon" style="background:${c.color}18;color:${c.color}">${c.icon}</span><span><strong>${esc(e.description)}</strong><small>Vence dia ${e.dueDate.slice(8)} · ${e.payment}</small></span><b>${money(e.value)}</b></button>`}).join("")||"<p style='color:#777386;font-size:10px'>Tudo pago por aqui. Muito bem!</p>";
-      renderRows();document.querySelector("#assistantText").textContent=`Você reservou ${money(state.investment)} para investimentos e ainda tem ${money(t.pending)} em contas pendentes.`;
-      bindDynamic();
-    }
-    function renderRows(){
-      const q=document.querySelector("#search").value.toLowerCase(),f=document.querySelector("#filter").value;
-      const list=state.expenses.filter(e=>(f==="Todos"||f==="Pagos"&&e.paid||f==="Pendentes"&&!e.paid||e.category===f)&&e.description.toLowerCase().includes(q));
-      document.querySelector("#expenseRows").innerHTML=list.map(e=>{const c=cat(e.category);return`<div class="row"><span class="name"><i style="background:${c.color}18;color:${c.color}">${c.icon}</i>${esc(e.description)}</span><span>${e.category}</span><span>${e.dueDate.split("-").reverse().join("/")}</span><button class="status ${e.paid?"paid":"pending"}" data-toggle="${e.id}">${e.paid?"Pago":"Pendente"}</button><strong>${money(e.value)}</strong><button class="delete" data-delete="${e.id}" aria-label="Excluir">×</button></div>`}).join("");
-      bindRows();
-    }
-    function bindDynamic(){
-      document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openModal(b.dataset.open));
-      document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{const e=state.expenses.find(x=>x.id===b.dataset.pay);e.paid=true;persist();render();toast("Conta marcada como paga.")});
-    }
-    function bindRows(){
-      document.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>{const e=state.expenses.find(x=>x.id===b.dataset.toggle);e.paid=!e.paid;persist();render()});
-      document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{state.expenses=state.expenses.filter(x=>x.id!==b.dataset.delete);persist();render();toast("Despesa excluída.")});
-    }
-    function openModal(type){
-      const box=document.querySelector("#modalContent");
-      if(type==="income")box.innerHTML=`<form id="incomeForm"><span class="eyebrow">PLANEJAMENTO MENSAL</span><h2>Atualizar renda</h2><p>Informe o valor líquido disponível neste mês.</p><label>Renda mensal (R$)<input name="income" type="number" step=".01" min="0" value="${state.income}" required autofocus></label><button class="primary full">Salvar renda</button></form>`;
-      if(type==="investment")box.innerHTML=`<form id="investmentForm"><span class="eyebrow">CONSTRUA SEU FUTURO</span><h2>Planejar investimentos</h2><p>Defina quanto da renda deseja separar. O valor ficará reservado no cálculo do saldo livre.</p><label>Valor para investimentos (R$)<input name="investment" type="number" step=".01" min="0" max="${state.income}" value="${state.investment}" required autofocus></label><button class="primary full">Salvar planejamento</button></form>`;
-      if(type==="expense")box.innerHTML=`<form id="expenseForm"><span class="eyebrow">NOVO LANÇAMENTO</span><h2>Adicionar despesa</h2><div class="formGrid"><label class="wide">Descrição<input name="description" placeholder="Ex.: Conta de energia" required autofocus></label><label>Valor (R$)<input name="value" type="number" step=".01" min=".01" required></label><label>Vencimento<input name="dueDate" type="date" required></label><label>Categoria<select name="category">${CATS.map(c=>`<option>${c.name}</option>`)}</select></label><label>Pagamento<select name="payment"><option>Pix</option><option>Crédito</option><option>Débito</option><option>Boleto</option><option>Dinheiro</option></select></label></div><div class="checks"><label><input name="paid" type="checkbox"> Já foi paga</label><label><input name="recurring" type="checkbox"> Repete todo mês</label></div><button class="primary full">Adicionar despesa</button></form>`;
-      document.querySelector("#modalBack").classList.add("show");
-      const form=box.querySelector("form");form.onsubmit=e=>{e.preventDefault();const d=new FormData(form);
-        if(type==="income")state.income=Number(d.get("income"));
-        if(type==="investment")state.investment=Number(d.get("investment"));
-        if(type==="expense")state.expenses.unshift({id:crypto.randomUUID(),description:d.get("description"),value:Number(d.get("value")),dueDate:d.get("dueDate"),category:d.get("category"),payment:d.get("payment"),paid:d.get("paid")==="on",recurring:d.get("recurring")==="on"});
-        persist();closeModal();render();toast(type==="expense"?"Despesa adicionada.":"Planejamento atualizado.");
-      };
-    }
-    function closeModal(){document.querySelector("#modalBack").classList.remove("show")}
-    document.querySelector("#closeModal").onclick=closeModal;document.querySelector("#modalBack").onclick=e=>{if(e.target.id==="modalBack")closeModal()};
-    document.querySelector("#search").oninput=renderRows;document.querySelector("#filter").onchange=renderRows;
-    document.querySelectorAll("[data-question]").forEach(b=>b.onclick=()=>{const t=totals(),by=CATS.map(c=>({...c,value:state.expenses.filter(e=>e.category===c.name).reduce((s,e)=>s+e.value,0)})).sort((a,b)=>b.value-a.value);
-      document.querySelector("#assistantText").textContent=b.dataset.question==="reduce"?`Sua maior categoria é ${by[0].name}, com ${money(by[0].value)}. Reduzir 10% liberaria ${money(by[0].value*.1)}.`:b.dataset.question==="budget"?`${t.committed.toFixed(1).replace(".",",")}% da renda está em despesas e ${t.investRate.toFixed(1).replace(".",",")}% foi reservado para investimentos. Saldo livre: ${money(t.balance)}.`:`Suas despesas somam ${money(t.total)}. Você pagou ${money(t.paid)}, tem ${money(t.pending)} pendentes e reservou ${money(state.investment)} para investir.`});
-    document.querySelector("#excelBtn").onclick=()=>{if(!window.XLSX){toast("Conecte-se à internet para gerar o Excel.");return}const t=totals(),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Indicador:"Renda mensal",Valor:state.income},{Indicador:"Despesas",Valor:t.total},{Indicador:"Investimentos planejados",Valor:state.investment},{Indicador:"Saldo livre",Valor:t.balance}]),"Resumo");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.expenses.map(e=>({Descrição:e.description,Categoria:e.category,Valor:e.value,Vencimento:e.dueDate,Situação:e.paid?"Pago":"Pendente",Pagamento:e.payment,Recorrente:e.recurring?"Sim":"Não"}))),"Despesas");XLSX.writeFile(wb,"Despesas_Pessoais.xlsx");toast("Planilha Excel gerada.")};
-    function reportDonut(by,total){
-      if(!total)return`<div class="emptyChart">Adicione despesas para visualizar a distribuição.</div>`;
-      const radius=62,circumference=2*Math.PI*radius;
-      let offset=0;
-      const slices=by.map(c=>{const length=c.value/total*circumference,start=offset;offset+=length;return`<circle cx="82" cy="82" r="${radius}" fill="none" stroke="${c.color}" stroke-width="26" stroke-dasharray="${length} ${circumference-length}" stroke-dashoffset="${-start}" transform="rotate(-90 82 82)"/>`}).join("");
-      const legend=by.map(c=>`<div class="legendItem"><i style="background:${c.color}"></i><span>${esc(c.name)}</span><b>${(c.value/total*100).toFixed(1).replace(".",",")}%</b></div>`).join("");
-      return`<div class="donutWrap"><svg viewBox="0 0 164 164" role="img" aria-label="Distribuição das despesas por categoria"><circle cx="82" cy="82" r="${radius}" fill="none" stroke="#eeeaf5" stroke-width="26"/>${slices}<text x="82" y="78" text-anchor="middle" class="donutLabel">Despesas</text><text x="82" y="98" text-anchor="middle" class="donutValue">${(state.income?total/state.income*100:0).toFixed(1).replace(".",",")}%</text></svg><div class="legend">${legend}</div></div>`;
-    }
-    document.querySelector("#pdfBtn").onclick=()=>{
-      const t=totals(),by=CATS.map(c=>({...c,value:state.expenses.filter(e=>e.category===c.name).reduce((s,e)=>s+e.value,0)})).filter(c=>c.value).sort((a,b)=>b.value-a.value),maxCategory=Math.max(...by.map(c=>c.value),1),incomeBase=Math.max(state.income,1),expenseShare=Math.min(t.total/incomeBase*100,100),investmentShare=Math.min(state.investment/incomeBase*100,Math.max(100-expenseShare,0)),freeShare=Math.max(100-expenseShare-investmentShare,0),w=open("","_blank");
-      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Relatório Despesas Pessoais</title><style>
-      *{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#1c1730;padding:26px;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}header{background:#1c1730;color:white;padding:24px 27px;border-radius:14px}header h1{margin:0 0 5px;font-size:25px}header p{margin:0;color:#d9d3ec}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:18px 0}.summary div{padding:14px;background:#f4f2f8;border-radius:10px}.summary small{display:block;color:#777;margin-bottom:5px}.charts{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:14px 0}.chartCard{border:1px solid #e5e0ee;border-radius:13px;padding:15px;break-inside:avoid}.chartCard h2{font-size:16px;margin:0 0 12px}.donutWrap{display:flex;align-items:center;gap:14px}.donutWrap svg{width:155px;height:155px;flex:none}.donutLabel{font-size:10px;fill:#777386}.donutValue{font-size:17px;font-weight:800;fill:#1c1730}.legend{flex:1}.legendItem{display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:6px;margin:7px 0;font-size:10px}.legendItem i{width:9px;height:9px;border-radius:50%}.bars .bar{display:grid;grid-template-columns:82px 1fr 70px;gap:7px;align-items:center;margin:8px 0;font-size:10px}.track{height:10px;background:#eeeaf5;border-radius:8px;overflow:hidden}.fill{height:100%;border-radius:8px}.budget{margin-top:15px}.stack{display:flex;height:22px;overflow:hidden;border-radius:7px;background:#eeeaf5}.stack span{display:block;height:100%}.budgetLegend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:10px}.budgetLegend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}.emptyChart{height:155px;display:grid;place-items:center;color:#777386;background:#f7f5fa;border-radius:10px;font-size:11px;text-align:center;padding:20px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:10px}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}th{background:#1c1730;color:white}.printBtn{margin:15px 0 0;padding:10px 16px;border:0;border-radius:8px;background:#7c5cff;color:white;font-weight:bold}@page{size:A4;margin:10mm}@media(max-width:700px){.summary{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}}@media print{body{padding:0}.printBtn{display:none}.charts{grid-template-columns:1fr 1fr}}
-      </style></head><body><header><h1>Despesas Pessoais</h1><p>Relatório financeiro • ${new Date().toLocaleDateString("pt-BR")}</p></header><section class="summary"><div><small>Renda</small><b>${money(state.income)}</b></div><div><small>Despesas</small><b>${money(t.total)}</b></div><div><small>Investimentos</small><b>${money(state.investment)}</b></div><div><small>Saldo livre</small><b>${money(t.balance)}</b></div></section><section class="charts"><article class="chartCard"><h2>Distribuição por categoria</h2>${reportDonut(by,t.total)}</article><article class="chartCard bars"><h2>Comparativo de gastos</h2>${by.length?by.map(c=>`<div class="bar"><span>${esc(c.name)}</span><div class="track"><div class="fill" style="width:${c.value/maxCategory*100}%;background:${c.color}"></div></div><b>${money(c.value)}</b></div>`).join(""):`<div class="emptyChart">Nenhuma despesa registrada.</div>`}</article></section><article class="chartCard budget"><h2>Composição da renda</h2><div class="stack"><span style="width:${expenseShare}%;background:#7c5cff"></span><span style="width:${investmentShare}%;background:#d79b11"></span><span style="width:${freeShare}%;background:#17a691"></span></div><div class="budgetLegend"><span><i style="background:#7c5cff"></i>Despesas: ${money(t.total)}</span><span><i style="background:#d79b11"></i>Investimentos: ${money(state.investment)}</span><span><i style="background:#17a691"></i>Saldo livre: ${money(t.balance)}</span></div></article><table><thead><tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Vencimento</th><th>Situação</th></tr></thead><tbody>${state.expenses.length?state.expenses.map(e=>`<tr><td>${esc(e.description)}</td><td>${e.category}</td><td>${money(e.value)}</td><td>${e.dueDate.split("-").reverse().join("/")}</td><td>${e.paid?"Pago":"Pendente"}</td></tr>`).join(""):`<tr><td colspan="5">Nenhuma despesa registrada.</td></tr>`}</tbody></table><button class="printBtn" onclick="print()">Salvar como PDF</button><script>setTimeout(()=>print(),500)<\/script></body></html>`);
-      w.document.close();
-    };
-    const installBtn=document.querySelector("#installBtn");
-    const isInstalled=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
-    const syncInstallButton=()=>{installBtn.hidden=isInstalled()};
-    let installPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;syncInstallButton()});
-    window.addEventListener("appinstalled",()=>{installPrompt=null;installBtn.hidden=true});
-    window.matchMedia("(display-mode: standalone)").addEventListener?.("change",syncInstallButton);
-    installBtn.onclick=async()=>{if(installPrompt){installPrompt.prompt();const result=await installPrompt.userChoice;installPrompt=null;if(result.outcome==="accepted")installBtn.hidden=true}else toast(/iPhone|iPad/.test(navigator.userAgent)?"No Safari, toque em Compartilhar e Adicionar à Tela de Início.":"No menu do navegador, escolha Instalar aplicativo.")};
-    syncInstallButton();
-    if("serviceWorker"in navigator)navigator.serviceWorker.register("./service-worker.js");
-    render();
-  </script>
 </body>
 </html>
