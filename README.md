@@ -17,6 +17,7 @@ https://nascimento-jean.github.io/despesas-pessoais/
 - edição de lançamentos e opção de desfazer exclusões;
 - alertas de vencimento e estouro do orçamento;
 - lançamento rápido usando linguagem natural;
+- lançamento por voz usando o microfone no Chrome;
 - assistente financeiro com diagnóstico, projeções e sugestões;
 - relatórios com gráficos em Excel e PDF;
 - backup e restauração de todos os dados;
