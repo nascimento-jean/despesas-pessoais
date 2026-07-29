@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#1c1730">
-  <meta name="description" content="Controle sua renda, despesas, investimentos e orÃ§amento pessoal.">
+  <meta name="description" content="Controle sua renda, despesas, investimentos e orçamento pessoal.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Despesas">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon.svg">
-  <title>Despesas Pessoais â€” Seu dinheiro, com clareza</title>
+  <title>Despesas Pessoais — Seu dinheiro, com clareza</title>
   <style>
     :root{--ink:#1c1730;--muted:#777386;--paper:#f6f5fa;--purple:#7c5cff;--line:#e9e7ef;--mint:#20bfa9;--coral:#ff9364}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}
@@ -34,50 +34,50 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#inicio"><span class="mark"></span><span>Despesas <strong>Pessoais</strong></span></a>
-    <nav><a href="#inicio">VisÃ£o geral</a><a href="#despesas">Despesas</a><a href="#relatorios">RelatÃ³rios</a><a href="#assistente">Assistente</a></nav>
-    <button class="install" id="installBtn">â‡© Instalar</button>
+    <nav><a href="#inicio">Visão geral</a><a href="#despesas">Despesas</a><a href="#relatorios">Relatórios</a><a href="#assistente">Assistente</a></nav>
+    <button class="install" id="installBtn">⇩ Instalar</button>
   </header>
   <main class="page">
     <section class="hero" id="inicio">
-      <div><span class="eyebrow">SEU DINHEIRO, COM CLAREZA</span><h1>OlÃ¡! Vamos cuidar<br>das suas <em>finanÃ§as.</em></h1><p>Acompanhe sua renda, entenda seus gastos, planeje investimentos e tome decisÃµes com tranquilidade.</p></div>
-      <div class="actions"><button class="secondary" data-open="income">Editar renda</button><button class="secondary" data-open="investment">Planejar investimento</button><button class="primary" data-open="expense">ï¼‹ Nova despesa</button></div>
+      <div><span class="eyebrow">SEU DINHEIRO, COM CLAREZA</span><h1>Olá! Vamos cuidar<br>das suas <em>finanças.</em></h1><p>Acompanhe sua renda, entenda seus gastos, planeje investimentos e tome decisões com tranquilidade.</p></div>
+      <div class="actions"><button class="secondary" data-open="income">Editar renda</button><button class="secondary" data-open="investment">Planejar investimento</button><button class="primary" data-open="expense">＋ Nova despesa</button></div>
     </section>
     <section class="cards" id="summary"></section>
     <section class="grid">
       <article class="panel">
-        <div class="panelHead"><div><span class="eyebrow">DISTRIBUIÃ‡ÃƒO</span><h2>Para onde vai seu dinheiro</h2></div></div>
+        <div class="panelHead"><div><span class="eyebrow">DISTRIBUIÇÃO</span><h2>Para onde vai seu dinheiro</h2></div></div>
         <div class="chartWrap"><div class="donut" id="donut"><div><small>Total</small><strong id="donutTotal"></strong></div></div><div class="legend" id="legend"></div></div>
       </article>
       <article class="panel">
-        <div class="panelHead"><div><span class="eyebrow">PRÃ“XIMOS DIAS</span><h2>Contas a pagar</h2></div><span class="pill" id="pendingCount"></span></div>
+        <div class="panelHead"><div><span class="eyebrow">PRÓXIMOS DIAS</span><h2>Contas a pagar</h2></div><span class="pill" id="pendingCount"></span></div>
         <div class="billList" id="bills"></div>
       </article>
     </section>
     <section class="panel" id="despesas">
-      <div class="panelHead tableHead"><div><span class="eyebrow">MOVIMENTAÃ‡Ã•ES</span><h2>Suas despesas</h2></div><div class="tools"><input id="search" placeholder="Buscar despesa"><select id="filter"><option>Todos</option><option>Pagos</option><option>Pendentes</option><option>Moradia</option><option>AlimentaÃ§Ã£o</option><option>Transporte</option><option>SaÃºde</option><option>EducaÃ§Ã£o</option><option>Lazer</option><option>Assinaturas</option><option>Outros</option></select></div></div>
+      <div class="panelHead tableHead"><div><span class="eyebrow">MOVIMENTAÇÕES</span><h2>Suas despesas</h2></div><div class="tools"><input id="search" placeholder="Buscar despesa"><select id="filter"><option>Todos</option><option>Pagos</option><option>Pendentes</option><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Lazer</option><option>Assinaturas</option><option>Outros</option></select></div></div>
       <div class="rows"><div class="row head"><span>DESPESA</span><span>CATEGORIA</span><span>VENCIMENTO</span><span>STATUS</span><span>VALOR</span><span></span></div><div id="expenseRows"></div></div>
     </section>
     <section class="lower">
-      <article class="panel" id="relatorios"><span class="eyebrow">SEUS DADOS, DO SEU JEITO</span><h2>RelatÃ³rios prontos para baixar</h2><p>Exporte um fechamento com despesas, situaÃ§Ã£o, resumo do orÃ§amento e planejamento de investimentos.</p><div class="reportBtns"><button id="excelBtn"><span class="file xls">X</span><span><strong>Planilha Excel</strong><small>Tabelas organizadas em .xlsx</small></span></button><button id="pdfBtn"><span class="file pdf">P</span><span><strong>RelatÃ³rio PDF</strong><small>Resumo, grÃ¡fico e tabela</small></span></button></div></article>
-      <article class="assistant" id="assistente"><span class="eyebrow">âœ¦ ANÃLISE INTELIGENTE LOCAL</span><h2>Seu assistente financeiro</h2><p id="assistantText"></p><div class="chips"><button data-question="summary">Resumir meu mÃªs</button><button data-question="reduce">Onde posso reduzir?</button><button data-question="budget">Minha renda estÃ¡ comprometida?</button></div><small class="privacy">As anÃ¡lises sÃ£o feitas no seu aparelho. Nenhum dado financeiro Ã© enviado.</small></article>
+      <article class="panel" id="relatorios"><span class="eyebrow">SEUS DADOS, DO SEU JEITO</span><h2>Relatórios prontos para baixar</h2><p>Exporte um fechamento com despesas, situação, resumo do orçamento e planejamento de investimentos.</p><div class="reportBtns"><button id="excelBtn"><span class="file xls">X</span><span><strong>Planilha Excel</strong><small>Tabelas organizadas em .xlsx</small></span></button><button id="pdfBtn"><span class="file pdf">P</span><span><strong>Relatório PDF</strong><small>Resumo, gráfico e tabela</small></span></button></div></article>
+      <article class="assistant" id="assistente"><span class="eyebrow">✦ ANÁLISE INTELIGENTE LOCAL</span><h2>Seu assistente financeiro</h2><p id="assistantText"></p><div class="chips"><button data-question="summary">Resumir meu mês</button><button data-question="reduce">Onde posso reduzir?</button><button data-question="budget">Minha renda está comprometida?</button></div><small class="privacy">As análises são feitas no seu aparelho. Nenhum dado financeiro é enviado.</small></article>
     </section>
   </main>
-  <div class="mobileNav"><a href="#inicio"><b>âŒ‚</b>InÃ­cio</a><a href="#despesas"><b>â†•</b>Despesas</a><a href="#relatorios"><b>â–¤</b>RelatÃ³rios</a><a href="#assistente"><b>âœ¦</b>Assistente</a></div>
-  <div class="modalBack" id="modalBack"><section class="modal"><button class="close" id="closeModal">Ã—</button><div id="modalContent"></div></section></div>
+  <div class="mobileNav"><a href="#inicio"><b>⌂</b>Início</a><a href="#despesas"><b>↕</b>Despesas</a><a href="#relatorios"><b>▤</b>Relatórios</a><a href="#assistente"><b>✦</b>Assistente</a></div>
+  <div class="modalBack" id="modalBack"><section class="modal"><button class="close" id="closeModal">×</button><div id="modalContent"></div></section></div>
   <div class="toast" id="toast"></div>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     const CATS=[
-      {name:"Moradia",color:"#7c5cff",icon:"âŒ‚"},{name:"AlimentaÃ§Ã£o",color:"#ff9364",icon:"â—’"},{name:"Transporte",color:"#20bfa9",icon:"â†—"},{name:"SaÃºde",color:"#ff5f7f",icon:"+"},{name:"EducaÃ§Ã£o",color:"#4f8cff",icon:"â—‡"},{name:"Lazer",color:"#f6bd41",icon:"âœ¦"},{name:"Assinaturas",color:"#9c6ade",icon:"â—Ž"},{name:"Outros",color:"#7b8794",icon:"â€¢â€¢"}
+      {name:"Moradia",color:"#7c5cff",icon:"⌂"},{name:"Alimentação",color:"#ff9364",icon:"◒"},{name:"Transporte",color:"#20bfa9",icon:"↗"},{name:"Saúde",color:"#ff5f7f",icon:"+"},{name:"Educação",color:"#4f8cff",icon:"◇"},{name:"Lazer",color:"#f6bd41",icon:"✦"},{name:"Assinaturas",color:"#9c6ade",icon:"◎"},{name:"Outros",color:"#7b8794",icon:"••"}
     ];
     const DEMO=[
       {id:"1",description:"Aluguel",category:"Moradia",value:1450,dueDate:"2026-07-05",paid:true,recurring:true,payment:"Pix"},
-      {id:"2",description:"Supermercado",category:"AlimentaÃ§Ã£o",value:642.8,dueDate:"2026-07-12",paid:true,recurring:false,payment:"CrÃ©dito"},
-      {id:"3",description:"Energia elÃ©trica",category:"Moradia",value:238.4,dueDate:"2026-07-18",paid:true,recurring:true,payment:"DÃ©bito"},
-      {id:"4",description:"Plano de saÃºde",category:"SaÃºde",value:485,dueDate:"2026-07-20",paid:false,recurring:true,payment:"Boleto"},
-      {id:"5",description:"CombustÃ­vel",category:"Transporte",value:320,dueDate:"2026-07-22",paid:false,recurring:false,payment:"CrÃ©dito"},
-      {id:"6",description:"Internet e streaming",category:"Assinaturas",value:169.9,dueDate:"2026-07-25",paid:false,recurring:true,payment:"CrÃ©dito"},
-      {id:"7",description:"Curso de inglÃªs",category:"EducaÃ§Ã£o",value:280,dueDate:"2026-07-28",paid:false,recurring:true,payment:"Pix"}
+      {id:"2",description:"Supermercado",category:"Alimentação",value:642.8,dueDate:"2026-07-12",paid:true,recurring:false,payment:"Crédito"},
+      {id:"3",description:"Energia elétrica",category:"Moradia",value:238.4,dueDate:"2026-07-18",paid:true,recurring:true,payment:"Débito"},
+      {id:"4",description:"Plano de saúde",category:"Saúde",value:485,dueDate:"2026-07-20",paid:false,recurring:true,payment:"Boleto"},
+      {id:"5",description:"Combustível",category:"Transporte",value:320,dueDate:"2026-07-22",paid:false,recurring:false,payment:"Crédito"},
+      {id:"6",description:"Internet e streaming",category:"Assinaturas",value:169.9,dueDate:"2026-07-25",paid:false,recurring:true,payment:"Crédito"},
+      {id:"7",description:"Curso de inglês",category:"Educação",value:280,dueDate:"2026-07-28",paid:false,recurring:true,payment:"Pix"}
     ];
     const saved=JSON.parse(localStorage.getItem("despesas-pessoais-github-v1")||"null");
     let state=saved||{income:5200,investment:500,expenses:DEMO};
@@ -90,24 +90,24 @@
     function render(){
       const t=totals();
       document.querySelector("#summary").innerHTML=`
-        <article class="card"><div class="cardTop"><span class="cardIcon">â†—</span><span class="pill">Renda</span></div><label>Renda mensal</label><strong>${money(state.income)}</strong><small>DisponÃ­vel para julho</small></article>
-        <article class="card"><div class="cardTop"><span class="cardIcon purple">â†“</span><span class="pill">${state.expenses.length} itens</span></div><label>Despesas do mÃªs</label><strong>${money(t.total)}</strong><small>${money(t.pending)} ainda pendentes</small></article>
-        <article class="card"><div class="cardTop"><span class="cardIcon">â—”</span><span class="pill">${t.committed.toFixed(0)}%</span></div><label>Renda comprometida</label><strong>${t.committed.toFixed(1).replace(".",",")}%</strong><div class="bar"><span style="width:${Math.min(t.committed,100)}%"></span></div></article>
-        <article class="card invest"><div class="cardTop"><span class="cardIcon gold">â—†</span><button class="pill" data-open="investment">Editar</button></div><label>Para investimentos</label><strong>${money(state.investment)}</strong><small>${t.investRate.toFixed(1).replace(".",",")}% da renda reservada</small></article>
-        <article class="card balance"><div class="cardTop"><span class="cardIcon dark">â—ˆ</span><span class="pill">Livre</span></div><label>Saldo livre projetado</label><strong>${money(t.balance)}</strong><small>ApÃ³s despesas e investimentos</small></article>`;
+        <article class="card"><div class="cardTop"><span class="cardIcon">↗</span><span class="pill">Renda</span></div><label>Renda mensal</label><strong>${money(state.income)}</strong><small>Disponível para julho</small></article>
+        <article class="card"><div class="cardTop"><span class="cardIcon purple">↓</span><span class="pill">${state.expenses.length} itens</span></div><label>Despesas do mês</label><strong>${money(t.total)}</strong><small>${money(t.pending)} ainda pendentes</small></article>
+        <article class="card"><div class="cardTop"><span class="cardIcon">◔</span><span class="pill">${t.committed.toFixed(0)}%</span></div><label>Renda comprometida</label><strong>${t.committed.toFixed(1).replace(".",",")}%</strong><div class="bar"><span style="width:${Math.min(t.committed,100)}%"></span></div></article>
+        <article class="card invest"><div class="cardTop"><span class="cardIcon gold">◆</span><button class="pill" data-open="investment">Editar</button></div><label>Para investimentos</label><strong>${money(state.investment)}</strong><small>${t.investRate.toFixed(1).replace(".",",")}% da renda reservada</small></article>
+        <article class="card balance"><div class="cardTop"><span class="cardIcon dark">◈</span><span class="pill">Livre</span></div><label>Saldo livre projetado</label><strong>${money(t.balance)}</strong><small>Após despesas e investimentos</small></article>`;
       const by=CATS.map(c=>({...c,value:state.expenses.filter(e=>e.category===c.name).reduce((s,e)=>s+e.value,0)})).filter(c=>c.value).sort((a,b)=>b.value-a.value);
       let start=0;const ring=by.map(c=>{const end=start+(c.value/t.total*100);const seg=`${c.color} ${start}% ${end}%`;start=end;return seg}).join(",");
       document.querySelector("#donut").style.background=`conic-gradient(${ring||"#e9e7ef 0 100%"})`;document.querySelector("#donutTotal").textContent=money(t.total);
       document.querySelector("#legend").innerHTML=by.map(c=>`<div class="legendRow"><i class="dot" style="background:${c.color}"></i><span>${c.name}</span><strong>${money(c.value)}</strong><small>${(c.value/t.total*100).toFixed(0)}%</small></div>`).join("");
       const pending=state.expenses.filter(e=>!e.paid);document.querySelector("#pendingCount").textContent=`${pending.length} pendentes`;
-      document.querySelector("#bills").innerHTML=pending.slice(0,4).map(e=>{const c=cat(e.category);return`<button class="bill" data-pay="${e.id}"><span class="billIcon" style="background:${c.color}18;color:${c.color}">${c.icon}</span><span><strong>${esc(e.description)}</strong><small>Vence dia ${e.dueDate.slice(8)} Â· ${e.payment}</small></span><b>${money(e.value)}</b></button>`}).join("")||"<p style='color:#777386;font-size:10px'>Tudo pago por aqui. Muito bem!</p>";
-      renderRows();document.querySelector("#assistantText").textContent=`VocÃª reservou ${money(state.investment)} para investimentos e ainda tem ${money(t.pending)} em contas pendentes.`;
+      document.querySelector("#bills").innerHTML=pending.slice(0,4).map(e=>{const c=cat(e.category);return`<button class="bill" data-pay="${e.id}"><span class="billIcon" style="background:${c.color}18;color:${c.color}">${c.icon}</span><span><strong>${esc(e.description)}</strong><small>Vence dia ${e.dueDate.slice(8)} · ${e.payment}</small></span><b>${money(e.value)}</b></button>`}).join("")||"<p style='color:#777386;font-size:10px'>Tudo pago por aqui. Muito bem!</p>";
+      renderRows();document.querySelector("#assistantText").textContent=`Você reservou ${money(state.investment)} para investimentos e ainda tem ${money(t.pending)} em contas pendentes.`;
       bindDynamic();
     }
     function renderRows(){
       const q=document.querySelector("#search").value.toLowerCase(),f=document.querySelector("#filter").value;
       const list=state.expenses.filter(e=>(f==="Todos"||f==="Pagos"&&e.paid||f==="Pendentes"&&!e.paid||e.category===f)&&e.description.toLowerCase().includes(q));
-      document.querySelector("#expenseRows").innerHTML=list.map(e=>{const c=cat(e.category);return`<div class="row"><span class="name"><i style="background:${c.color}18;color:${c.color}">${c.icon}</i>${esc(e.description)}</span><span>${e.category}</span><span>${e.dueDate.split("-").reverse().join("/")}</span><button class="status ${e.paid?"paid":"pending"}" data-toggle="${e.id}">${e.paid?"Pago":"Pendente"}</button><strong>${money(e.value)}</strong><button class="delete" data-delete="${e.id}" aria-label="Excluir">Ã—</button></div>`}).join("");
+      document.querySelector("#expenseRows").innerHTML=list.map(e=>{const c=cat(e.category);return`<div class="row"><span class="name"><i style="background:${c.color}18;color:${c.color}">${c.icon}</i>${esc(e.description)}</span><span>${e.category}</span><span>${e.dueDate.split("-").reverse().join("/")}</span><button class="status ${e.paid?"paid":"pending"}" data-toggle="${e.id}">${e.paid?"Pago":"Pendente"}</button><strong>${money(e.value)}</strong><button class="delete" data-delete="${e.id}" aria-label="Excluir">×</button></div>`}).join("");
       bindRows();
     }
     function bindDynamic(){
@@ -116,13 +116,13 @@
     }
     function bindRows(){
       document.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>{const e=state.expenses.find(x=>x.id===b.dataset.toggle);e.paid=!e.paid;persist();render()});
-      document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{state.expenses=state.expenses.filter(x=>x.id!==b.dataset.delete);persist();render();toast("Despesa excluÃ­da.")});
+      document.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{state.expenses=state.expenses.filter(x=>x.id!==b.dataset.delete);persist();render();toast("Despesa excluída.")});
     }
     function openModal(type){
       const box=document.querySelector("#modalContent");
-      if(type==="income")box.innerHTML=`<form id="incomeForm"><span class="eyebrow">PLANEJAMENTO MENSAL</span><h2>Atualizar renda</h2><p>Informe o valor lÃ­quido disponÃ­vel neste mÃªs.</p><label>Renda mensal (R$)<input name="income" type="number" step=".01" min="0" value="${state.income}" required autofocus></label><button class="primary full">Salvar renda</button></form>`;
-      if(type==="investment")box.innerHTML=`<form id="investmentForm"><span class="eyebrow">CONSTRUA SEU FUTURO</span><h2>Planejar investimentos</h2><p>Defina quanto da renda deseja separar. O valor ficarÃ¡ reservado no cÃ¡lculo do saldo livre.</p><label>Valor para investimentos (R$)<input name="investment" type="number" step=".01" min="0" max="${state.income}" value="${state.investment}" required autofocus></label><button class="primary full">Salvar planejamento</button></form>`;
-      if(type==="expense")box.innerHTML=`<form id="expenseForm"><span class="eyebrow">NOVO LANÃ‡AMENTO</span><h2>Adicionar despesa</h2><div class="formGrid"><label class="wide">DescriÃ§Ã£o<input name="description" placeholder="Ex.: Conta de energia" required autofocus></label><label>Valor (R$)<input name="value" type="number" step=".01" min=".01" required></label><label>Vencimento<input name="dueDate" type="date" required></label><label>Categoria<select name="category">${CATS.map(c=>`<option>${c.name}</option>`)}</select></label><label>Pagamento<select name="payment"><option>Pix</option><option>CrÃ©dito</option><option>DÃ©bito</option><option>Boleto</option><option>Dinheiro</option></select></label></div><div class="checks"><label><input name="paid" type="checkbox"> JÃ¡ foi paga</label><label><input name="recurring" type="checkbox"> Repete todo mÃªs</label></div><button class="primary full">Adicionar despesa</button></form>`;
+      if(type==="income")box.innerHTML=`<form id="incomeForm"><span class="eyebrow">PLANEJAMENTO MENSAL</span><h2>Atualizar renda</h2><p>Informe o valor líquido disponível neste mês.</p><label>Renda mensal (R$)<input name="income" type="number" step=".01" min="0" value="${state.income}" required autofocus></label><button class="primary full">Salvar renda</button></form>`;
+      if(type==="investment")box.innerHTML=`<form id="investmentForm"><span class="eyebrow">CONSTRUA SEU FUTURO</span><h2>Planejar investimentos</h2><p>Defina quanto da renda deseja separar. O valor ficará reservado no cálculo do saldo livre.</p><label>Valor para investimentos (R$)<input name="investment" type="number" step=".01" min="0" max="${state.income}" value="${state.investment}" required autofocus></label><button class="primary full">Salvar planejamento</button></form>`;
+      if(type==="expense")box.innerHTML=`<form id="expenseForm"><span class="eyebrow">NOVO LANÇAMENTO</span><h2>Adicionar despesa</h2><div class="formGrid"><label class="wide">Descrição<input name="description" placeholder="Ex.: Conta de energia" required autofocus></label><label>Valor (R$)<input name="value" type="number" step=".01" min=".01" required></label><label>Vencimento<input name="dueDate" type="date" required></label><label>Categoria<select name="category">${CATS.map(c=>`<option>${c.name}</option>`)}</select></label><label>Pagamento<select name="payment"><option>Pix</option><option>Crédito</option><option>Débito</option><option>Boleto</option><option>Dinheiro</option></select></label></div><div class="checks"><label><input name="paid" type="checkbox"> Já foi paga</label><label><input name="recurring" type="checkbox"> Repete todo mês</label></div><button class="primary full">Adicionar despesa</button></form>`;
       document.querySelector("#modalBack").classList.add("show");
       const form=box.querySelector("form");form.onsubmit=e=>{e.preventDefault();const d=new FormData(form);
         if(type==="income")state.income=Number(d.get("income"));
@@ -135,14 +135,13 @@
     document.querySelector("#closeModal").onclick=closeModal;document.querySelector("#modalBack").onclick=e=>{if(e.target.id==="modalBack")closeModal()};
     document.querySelector("#search").oninput=renderRows;document.querySelector("#filter").onchange=renderRows;
     document.querySelectorAll("[data-question]").forEach(b=>b.onclick=()=>{const t=totals(),by=CATS.map(c=>({...c,value:state.expenses.filter(e=>e.category===c.name).reduce((s,e)=>s+e.value,0)})).sort((a,b)=>b.value-a.value);
-      document.querySelector("#assistantText").textContent=b.dataset.question==="reduce"?`Sua maior categoria Ã© ${by[0].name}, com ${money(by[0].value)}. Reduzir 10% liberaria ${money(by[0].value*.1)}.`:b.dataset.question==="budget"?`${t.committed.toFixed(1).replace(".",",")}% da renda estÃ¡ em despesas e ${t.investRate.toFixed(1).replace(".",",")}% foi reservado para investimentos. Saldo livre: ${money(t.balance)}.`:`Suas despesas somam ${money(t.total)}. VocÃª pagou ${money(t.paid)}, tem ${money(t.pending)} pendentes e reservou ${money(state.investment)} para investir.`});
-    document.querySelector("#excelBtn").onclick=()=>{if(!window.XLSX){toast("Conecte-se Ã  internet para gerar o Excel.");return}const t=totals(),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Indicador:"Renda mensal",Valor:state.income},{Indicador:"Despesas",Valor:t.total},{Indicador:"Investimentos planejados",Valor:state.investment},{Indicador:"Saldo livre",Valor:t.balance}]),"Resumo");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.expenses.map(e=>({DescriÃ§Ã£o:e.description,Categoria:e.category,Valor:e.value,Vencimento:e.dueDate,SituaÃ§Ã£o:e.paid?"Pago":"Pendente",Pagamento:e.payment,Recorrente:e.recurring?"Sim":"NÃ£o"}))),"Despesas");XLSX.writeFile(wb,"Despesas_Pessoais.xlsx");toast("Planilha Excel gerada.")};
-    document.querySelector("#pdfBtn").onclick=()=>{const t=totals(),by=CATS.map(c=>({...c,value:state.expenses.filter(e=>e.category===c.name).reduce((s,e)=>s+e.value,0)})).filter(c=>c.value).sort((a,b)=>b.value-a.value),w=open("","_blank");w.document.write(`<!doctype html><html><head><title>RelatÃ³rio Despesas Pessoais</title><style>body{font-family:Arial;color:#1c1730;padding:30px}header{background:#1c1730;color:white;padding:25px;border-radius:14px}h1{margin:0}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.summary div{padding:15px;background:#f4f2f8;border-radius:10px}.summary small{display:block;color:#777}.bar{display:flex;align-items:center;gap:10px;margin:8px 0}.bar i{height:9px;background:#7c5cff;border-radius:8px}table{width:100%;border-collapse:collapse;margin-top:24px;font-size:12px}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left}th{background:#1c1730;color:white}@media print{button{display:none}}</style></head><body><header><h1>Despesas Pessoais</h1><p>RelatÃ³rio financeiro</p></header><section class="summary"><div><small>Renda</small><b>${money(state.income)}</b></div><div><small>Despesas</small><b>${money(t.total)}</b></div><div><small>Investimentos</small><b>${money(state.investment)}</b></div><div><small>Saldo livre</small><b>${money(t.balance)}</b></div></section><h2>Gastos por categoria</h2>${by.map(c=>`<div class="bar"><span style="width:100px">${c.name}</span><i style="width:${c.value/t.total*300}px;background:${c.color}"></i><b>${money(c.value)}</b></div>`).join("")}<table><thead><tr><th>DescriÃ§Ã£o</th><th>Categoria</th><th>Valor</th><th>Vencimento</th><th>SituaÃ§Ã£o</th></tr></thead><tbody>${state.expenses.map(e=>`<tr><td>${esc(e.description)}</td><td>${e.category}</td><td>${money(e.value)}</td><td>${e.dueDate.split("-").reverse().join("/")}</td><td>${e.paid?"Pago":"Pendente"}</td></tr>`).join("")}</tbody></table><script>setTimeout(()=>print(),300)<\/script></body></html>`);w.document.close()};
+      document.querySelector("#assistantText").textContent=b.dataset.question==="reduce"?`Sua maior categoria é ${by[0].name}, com ${money(by[0].value)}. Reduzir 10% liberaria ${money(by[0].value*.1)}.`:b.dataset.question==="budget"?`${t.committed.toFixed(1).replace(".",",")}% da renda está em despesas e ${t.investRate.toFixed(1).replace(".",",")}% foi reservado para investimentos. Saldo livre: ${money(t.balance)}.`:`Suas despesas somam ${money(t.total)}. Você pagou ${money(t.paid)}, tem ${money(t.pending)} pendentes e reservou ${money(state.investment)} para investir.`});
+    document.querySelector("#excelBtn").onclick=()=>{if(!window.XLSX){toast("Conecte-se à internet para gerar o Excel.");return}const t=totals(),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Indicador:"Renda mensal",Valor:state.income},{Indicador:"Despesas",Valor:t.total},{Indicador:"Investimentos planejados",Valor:state.investment},{Indicador:"Saldo livre",Valor:t.balance}]),"Resumo");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.expenses.map(e=>({Descrição:e.description,Categoria:e.category,Valor:e.value,Vencimento:e.dueDate,Situação:e.paid?"Pago":"Pendente",Pagamento:e.payment,Recorrente:e.recurring?"Sim":"Não"}))),"Despesas");XLSX.writeFile(wb,"Despesas_Pessoais.xlsx");toast("Planilha Excel gerada.")};
+    document.querySelector("#pdfBtn").onclick=()=>{const t=totals(),by=CATS.map(c=>({...c,value:state.expenses.filter(e=>e.category===c.name).reduce((s,e)=>s+e.value,0)})).filter(c=>c.value).sort((a,b)=>b.value-a.value),w=open("","_blank");w.document.write(`<!doctype html><html><head><title>Relatório Despesas Pessoais</title><style>body{font-family:Arial;color:#1c1730;padding:30px}header{background:#1c1730;color:white;padding:25px;border-radius:14px}h1{margin:0}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.summary div{padding:15px;background:#f4f2f8;border-radius:10px}.summary small{display:block;color:#777}.bar{display:flex;align-items:center;gap:10px;margin:8px 0}.bar i{height:9px;background:#7c5cff;border-radius:8px}table{width:100%;border-collapse:collapse;margin-top:24px;font-size:12px}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left}th{background:#1c1730;color:white}@media print{button{display:none}}</style></head><body><header><h1>Despesas Pessoais</h1><p>Relatório financeiro</p></header><section class="summary"><div><small>Renda</small><b>${money(state.income)}</b></div><div><small>Despesas</small><b>${money(t.total)}</b></div><div><small>Investimentos</small><b>${money(state.investment)}</b></div><div><small>Saldo livre</small><b>${money(t.balance)}</b></div></section><h2>Gastos por categoria</h2>${by.map(c=>`<div class="bar"><span style="width:100px">${c.name}</span><i style="width:${c.value/t.total*300}px;background:${c.color}"></i><b>${money(c.value)}</b></div>`).join("")}<table><thead><tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Vencimento</th><th>Situação</th></tr></thead><tbody>${state.expenses.map(e=>`<tr><td>${esc(e.description)}</td><td>${e.category}</td><td>${money(e.value)}</td><td>${e.dueDate.split("-").reverse().join("/")}</td><td>${e.paid?"Pago":"Pendente"}</td></tr>`).join("")}</tbody></table><script>setTimeout(()=>print(),300)<\/script></body></html>`);w.document.close()};
     let installPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e});
-    document.querySelector("#installBtn").onclick=async()=>{if(installPrompt){installPrompt.prompt();installPrompt=null}else toast(/iPhone|iPad/.test(navigator.userAgent)?"No Safari, toque em Compartilhar e Adicionar Ã  Tela de InÃ­cio.":"No menu do navegador, escolha Instalar aplicativo.")};
+    document.querySelector("#installBtn").onclick=async()=>{if(installPrompt){installPrompt.prompt();installPrompt=null}else toast(/iPhone|iPad/.test(navigator.userAgent)?"No Safari, toque em Compartilhar e Adicionar à Tela de Início.":"No menu do navegador, escolha Instalar aplicativo.")};
     if("serviceWorker"in navigator)navigator.serviceWorker.register("./service-worker.js");
     render();
   </script>
 </body>
 </html>
-
