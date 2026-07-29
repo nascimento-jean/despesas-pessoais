@@ -15,6 +15,9 @@
     body.dark .donut:after{background:#201c2d}body.dark .tools input,body.dark .tools select,body.dark .quickentry input,body.dark .modal input,body.dark .modal select{background:#171422;color:#f4f1ff}
     body.dark .quickentry,body.dark .reportgrid button,body.dark .rowactions button{background:#29243a;color:#f4f1ff}
     body.dark .mobilenav{background:#201c2df2}
+    #voiceAdd{background:#fff;color:#7957ff;border:1px solid #dcd3ff;white-space:nowrap}
+    #voiceAdd.listening{background:#fff0f3;color:#e94d6b;border-color:#ffc5d0;animation:pulseMic 1s infinite}
+    @keyframes pulseMic{50%{transform:scale(1.04)}}
   </style>
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script defer src="./app.js"></script>
@@ -57,7 +60,7 @@
 
     <section class="panel movements" id="movimentos">
       <header class="panelhead responsive"><div><span class="eyebrow">MOVIMENTAÇÕES</span><h2>Despesas do mês</h2></div><div class="tools"><input id="search" placeholder="Buscar despesa"><select id="filter"><option>Todos</option><option>Pagos</option><option>Pendentes</option><option>Vencidos</option></select></div></header>
-      <div class="quickentry"><span>✦</span><input id="quickInput" placeholder='Ex.: "Gastei 85 no supermercado hoje"'><button id="quickAdd">Adicionar com IA</button></div>
+      <div class="quickentry"><span>✦</span><input id="quickInput" placeholder='Ex.: "Gastei 85 no supermercado hoje"'><button id="voiceAdd" aria-label="Falar despesa">🎤 Falar despesa</button><button id="quickAdd">Adicionar com IA</button></div>
       <div class="table" id="expenseTable"></div>
     </section>
 
