@@ -134,9 +134,20 @@ function saveModal(event){
   if(type==="contribution"){const goal=state.goals.find(g=>g.id===id);goal.saved=Math.min(goal.target,goal.saved+Number(data.get("amount")))}
   persist();closeModal();render();toast("Informações salvas com sucesso.");
 }
+function spokenAmount(text){
+  const values={zero:0,um:1,uma:1,dois:2,duas:2,três:3,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,quatorze:14,catorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900,mil:1000};
+  let amount=0,active=false;
+  for(const raw of text.toLowerCase().replace(/[.,!?]/g," ").split(/\s+/)){
+    const word=raw.normalize("NFD").replace(/[\u0300-\u036f]/g,""),value=values[word];
+    if(value!==undefined){active=true;amount=value===1000?(amount||1)*1000:amount+value;continue}
+    if(active&&(word==="e"||word==="reais"||word==="real")){if(word!=="e")break;continue}
+    if(active)break;
+  }
+  return active?amount:null;
+}
 function parseExpense(text){
   const normalized=text.toLowerCase(),numbers=[...normalized.matchAll(/(?:r\$\s*)?(\d+(?:[.,]\d{1,2})?)/g)].map(m=>({raw:m[0],value:Number(m[1].replace(",",".")),index:m.index}));
-  const value=numbers.find(n=>n.value>0)?.value;if(!value)return null;
+  const value=numbers.find(n=>n.value>0)?.value??spokenAmount(normalized);if(!value)return null;
   const rules=[
     ["Alimentação",/mercado|supermercado|restaurante|lanche|almoço|jantar|comida|ifood/],
     ["Transporte",/combustível|gasolina|uber|ônibus|transporte|estacionamento/],["Moradia",/aluguel|energia|água|condomínio|casa/],
@@ -145,13 +156,25 @@ function parseExpense(text){
   ];
   const cat=rules.find(([,r])=>r.test(normalized))?.[0]||"Outros";
   const date=normalized.includes("amanhã")?new Date(Date.now()+864e5):new Date(),due=dueFor(state.selectedMonth,date.getDate());
-  let description=text.replace(numbers[0].raw,"").replace(/\b(gastei|paguei|comprei|reais|real|hoje|amanhã|no|na|em|de)\b/gi," ").replace(/\s+/g," ").trim();
+  const numberWords="zero|um|uma|dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|treze|quatorze|catorze|quinze|dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa|cem|cento|duzentos|trezentos|quatrocentos|quinhentos|seiscentos|setecentos|oitocentos|novecentos|mil";
+  let description=text.replace(numbers[0]?.raw||"","").replace(new RegExp(`\\b(gastei|paguei|comprei|reais|real|hoje|amanhã|no|na|em|de|e|${numberWords})\\b`,"gi")," ").replace(/\s+/g," ").trim();
   description=description?description[0].toUpperCase()+description.slice(1):cat;
   return{description,value,category:cat,dueDate:due,payment:/cartão|crédito/.test(normalized)?"Crédito":/pix/.test(normalized)?"Pix":"Outros"};
 }
 function quickAdd(text){
   const parsed=parseExpense(text);if(!parsed){toast("Não identifiquei o valor. Tente: “Gastei 85 no supermercado hoje”.");return false}
   current().expenses.unshift({...parsed,id:uid(),paid:false,recurring:false,cardId:"",installment:1,totalInstallments:1,seriesId:null});persist();render();toast(`${parsed.description} adicionada: ${money(parsed.value)}.`);return true;
+}
+function startVoiceExpense(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){toast("O reconhecimento de voz não está disponível neste navegador. No Android, use o Chrome atualizado.");return}
+  const button=$("#voiceAdd"),recognition=new SpeechRecognition();
+  recognition.lang="pt-BR";recognition.interimResults=false;recognition.maxAlternatives=1;
+  button.disabled=true;button.classList.add("listening");button.textContent="● Ouvindo...";
+  recognition.onresult=event=>{const transcript=event.results[0][0].transcript.trim();$("#quickInput").value=transcript;setTimeout(()=>quickAdd(transcript),150)};
+  recognition.onerror=event=>toast(event.error==="not-allowed"?"Permita o uso do microfone para falar a despesa.":event.error==="no-speech"?"Não consegui ouvir. Toque no microfone e tente novamente.":"Não foi possível reconhecer a fala.");
+  recognition.onend=()=>{button.disabled=false;button.classList.remove("listening");button.textContent="🎤 Falar despesa"};
+  try{recognition.start()}catch{recognition.onend();toast("O microfone já está sendo utilizado.")}
 }
 function assistantAnswer(prompt){
   const p=prompt.toLowerCase(),month=current(),t=totals(),cats=byCategory(),top=cats[0],over=CATEGORIES.filter(c=>month.budgets[c.name]&&(cats.find(x=>x.name===c.name)?.value||0)>month.budgets[c.name]),months=Object.keys(state.months).sort(),previous=state.months[monthShift(state.selectedMonth,-1)],pt=previous?totals(previous):null;
@@ -195,7 +218,7 @@ $("#themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.
 $("#monthPick").onclick=()=>{const value=prompt("Digite o mês no formato AAAA-MM:",state.selectedMonth);if(/^\\d{4}-(0[1-9]|1[0-2])$/.test(value||"")){ensureMonth(value);state.selectedMonth=value;persist();render()}};
 $("#search").oninput=e=>{query=e.target.value;renderExpenses()};$("#filter").onchange=e=>{filter=e.target.value;renderExpenses()};
 $("#modalClose").onclick=closeModal;$("#modalBack").onclick=e=>{if(e.target.id==="modalBack")closeModal()};
-$("#quickAdd").onclick=()=>{if(quickAdd($("#quickInput").value))$("#quickInput").value=""};$("#quickInput").onkeydown=e=>{if(e.key==="Enter")$("#quickAdd").click()};
+$("#quickAdd").onclick=()=>{if(quickAdd($("#quickInput").value))$("#quickInput").value=""};$("#voiceAdd").onclick=startVoiceExpense;$("#quickInput").onkeydown=e=>{if(e.key==="Enter")$("#quickAdd").click()};
 $("#aiSend").onclick=()=>{sendAssistant($("#aiInput").value);$("#aiInput").value=""};$("#aiInput").onkeydown=e=>{if(e.key==="Enter")$("#aiSend").click()};document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendAssistant(b.dataset.prompt));
 $("#excelBtn").onclick=exportExcel;$("#pdfBtn").onclick=exportPdf;$("#backupBtn").onclick=exportBackup;$("#restoreBtn").onclick=()=>$("#restoreFile").click();$("#restoreFile").onchange=e=>e.target.files[0]&&restoreBackup(e.target.files[0]);$("#notifyBtn").onclick=enableNotifications;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e});window.addEventListener("appinstalled",()=>$("#installBtn").hidden=true);
