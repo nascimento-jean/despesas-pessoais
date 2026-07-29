@@ -1,11 +1,13 @@
-const CACHE="despesas-pessoais-github-v8";
+const CACHE="despesas-pessoais-github-v9";
 const ROOT="/despesas-pessoais/";
-const SHELL=[ROOT,ROOT+"index.html",ROOT+"styles.css",ROOT+"app.js",ROOT+"manifest.webmanifest",ROOT+"icon.svg"];
+const SHELL=[ROOT,ROOT+"index.html",ROOT+"styles.css?refresh=1",ROOT+"app.js?voice=1",ROOT+"manifest.webmanifest",ROOT+"icon.svg"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));self.skipWaiting()});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))));self.clients.claim()});
 self.addEventListener("fetch",event=>{
   if(event.request.method!=="GET")return;
-  if(event.request.mode==="navigate"){
+  const url=new URL(event.request.url);
+  const alwaysFresh=url.pathname.endsWith("/app.js")||url.pathname.endsWith("/styles.css");
+  if(event.request.mode==="navigate"||alwaysFresh){
     event.respondWith(fetch(event.request).then(response=>{const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));return response}).catch(()=>caches.match(ROOT+"index.html")));
     return;
   }
