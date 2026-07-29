@@ -1,7 +1,7 @@
 {
   "name": "Despesas Pessoais",
   "short_name": "Despesas",
-  "description": "Controle sua renda, despesas, investimentos e orÃ§amento pessoal.",
+  "description": "Controle sua renda, despesas, investimentos e orçamento pessoal.",
   "id": "/despesas-pessoais/",
   "start_url": "/despesas-pessoais/",
   "scope": "/despesas-pessoais/",
@@ -13,4 +13,3 @@
     { "src": "./icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }
-
