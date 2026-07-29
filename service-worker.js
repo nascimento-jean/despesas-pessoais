@@ -1,4 +1,4 @@
-const CACHE="despesas-pessoais-github-v7";
+const CACHE="despesas-pessoais-github-v8";
 const ROOT="/despesas-pessoais/";
 const SHELL=[ROOT,ROOT+"index.html",ROOT+"styles.css",ROOT+"app.js",ROOT+"manifest.webmanifest",ROOT+"icon.svg"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));self.skipWaiting()});
