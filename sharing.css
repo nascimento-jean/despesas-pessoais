@@ -1,0 +1,33 @@
+.headeractions{display:flex;align-items:center;gap:8px}
+.sharebutton{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.sharebutton.connected{background:#e9f8f4;color:#087967;border-color:#bde9de}
+.accountline{padding:9px 11px;background:#f6f3fa;border-radius:9px}
+.privacybox,.invitebox{display:flex;flex-direction:column;gap:5px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#faf9fc}
+.privacybox span,.invitebox p{font-size:9px;color:var(--muted);margin:0}
+.spacelist{display:grid;gap:7px;margin:14px 0}
+.spaceitem{display:flex;align-items:center;justify-content:space-between;text-align:left;padding:12px;border-radius:11px;background:#faf9fc;border:1px solid var(--line);color:var(--ink)}
+.spaceitem.active{border-color:#a995ff;background:#f4f0ff}
+.spaceitem span{display:flex;flex-direction:column;gap:3px}
+.spaceitem small{color:var(--muted);font-size:8px}
+.spaceitem strong{font-size:9px;color:var(--purple)}
+.connectedbox{display:flex;align-items:center;gap:10px;padding:13px;border-radius:12px;background:#eaf9f5;color:#087967}
+.connectedbox span:nth-child(2){display:flex;flex-direction:column;gap:3px}
+.connectedbox small{font-size:8px;color:#397b70}
+.livepulse{width:9px;height:9px;border-radius:50%;background:#0aa78f;box-shadow:0 0 0 5px #0aa78f20;animation:livePulse 1.7s infinite}
+@keyframes livePulse{50%{box-shadow:0 0 0 9px #0aa78f09}}
+.inlineform{display:grid;grid-template-columns:1fr auto;gap:8px}
+.inlineform input{min-width:0}
+.invitebox>div,.sharefooter{display:flex;gap:8px;margin-top:7px}
+.sharefooter{align-items:center;justify-content:space-between;margin-top:15px}
+.sharedviewer [disabled]{opacity:.45;cursor:not-allowed}
+.dark .spaceitem,.dark .privacybox,.dark .invitebox,.dark .accountline{background:#171422}
+.dark .spaceitem{color:#f4f1ff}
+.dark .connectedbox{background:#18332f;color:#8ce3d4}
+@media(max-width:680px){
+  .headeractions{margin-left:auto}
+  .sharebutton{padding:9px}
+  .sharebutton span{max-width:86px;overflow:hidden;text-overflow:ellipsis}
+  .inlineform{grid-template-columns:1fr}
+  .sharefooter{align-items:stretch;flex-direction:column}
+  .topbar>.headeractions .install{display:none}
+}

@@ -4,7 +4,7 @@ const CATEGORIES=[
   {name:"Educação",color:"#4387e8",icon:"◇"},{name:"Lazer",color:"#dda324",icon:"✦"},
   {name:"Assinaturas",color:"#9b67d9",icon:"◎"},{name:"Outros",color:"#78838f",icon:"••"}
 ];
-const STORE="despesas-pessoais-v2",LEGACY="despesas-pessoais-github-v1";
+const STORE="despesas-pessoais-v2",LEGACY="despesas-pessoais-github-v1",PERSONAL_STORE="despesas-pessoais-personal-v2",ACTIVE_HOUSEHOLD="despesas-pessoais-household";
 const money=v=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(v)||0);
 const uid=()=>crypto.randomUUID?.()||`${Date.now()}-${Math.random()}`;
 const nowMonth=()=>new Date().toISOString().slice(0,7);
@@ -29,9 +29,13 @@ function loadState(){
   return initialState();
 }
 let state=loadState(),filter="Todos",query="",editing=null,installPrompt=null,deletedUndo=null;
+let cloud={client:null,user:null,households:[],active:null,role:null,channel:null,revision:0,applying:false,saveTimer:null,lastEditor:null,lastUpdate:null};
 document.body.classList.toggle("dark",localStorage.getItem("despesas-pessoais-theme")==="dark");
 const $=selector=>document.querySelector(selector);
-function persist(){localStorage.setItem(STORE,JSON.stringify(state))}
+function persist(){
+  localStorage.setItem(STORE,JSON.stringify(state));
+  if(cloud.active&&!cloud.applying)queueCloudSave();
+}
 function current(){return state.months[state.selectedMonth]||(state.months[state.selectedMonth]=blankMonth())}
 function totals(month=current()){
   const total=month.expenses.reduce((s,e)=>s+Number(e.value),0),paid=month.expenses.filter(e=>e.paid).reduce((s,e)=>s+Number(e.value),0);
@@ -76,7 +80,7 @@ function render(){
     overBudget.length?`<div class="alert">◔ <b>Limite ultrapassado</b><span>${overBudget.map(c=>c.name).join(", ")}</span><button data-action="budget">Ajustar</button></div>`:"",
     near.length?`<div class="alert">◷ <b>${near.length} vencimento${near.length>1?"s":""} nos próximos dias</b><span>${money(near.reduce((s,e)=>s+e.value,0))}</span></div>`:""
   ].join("");
-  renderExpenses();renderCards();renderGoals();renderTrend();bindActions();
+  renderExpenses();renderCards();renderGoals();renderTrend();bindActions();renderShareStatus();applySharedPermissions();
 }
 function setFilterValue(value){filter=value;$("#filter").value=value;renderExpenses();$("#movimentos").scrollIntoView({behavior:"smooth"})}
 function renderExpenses(){
@@ -205,6 +209,132 @@ function exportPdf(){
   const month=current(),t=totals(),cats=byCategory(),max=Math.max(...cats.map(c=>c.value),1),w=open("","_blank");
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Relatório Despesas Pessoais</title><style>*{box-sizing:border-box}body{font:12px Arial;color:#1d1930;margin:0;padding:25px;-webkit-print-color-adjust:exact;print-color-adjust:exact}header{background:#1d1930;color:#fff;padding:22px;border-radius:12px}header h1{margin:0}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0}.summary div,.chart{border:1px solid #e5e1ec;border-radius:10px;padding:12px}.summary small{display:block;color:#777}.charts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.donutReport{display:flex;align-items:center}.donutReport svg{width:155px;height:155px}.donutReport p{display:grid;grid-template-columns:10px 1fr auto;gap:6px;margin:6px}.donutReport i{width:8px;height:8px;border-radius:50%}.bars p{display:grid;grid-template-columns:80px 1fr 65px;gap:7px;align-items:center}.track{height:9px;background:#eeeaf4;border-radius:8px;overflow:hidden}.track i{display:block;height:100%}.stack{display:flex;height:20px;border-radius:6px;overflow:hidden;background:#eee}.stack i{display:block}table{width:100%;border-collapse:collapse;margin-top:15px;font-size:9px}th,td{padding:7px;border-bottom:1px solid #ddd;text-align:left}th{background:#1d1930;color:#fff}@page{size:A4;margin:9mm}@media print{button{display:none}}</style></head><body><header><h1>Despesas Pessoais</h1><p>${monthName(state.selectedMonth)} • Gerado em ${new Date().toLocaleDateString("pt-BR")}</p></header><section class="summary"><div><small>Renda</small><b>${money(month.income)}</b></div><div><small>Despesas</small><b>${money(t.total)}</b></div><div><small>Investimentos</small><b>${money(month.investment)}</b></div><div><small>Saldo livre</small><b>${money(t.balance)}</b></div></section><section class="charts"><article class="chart"><h3>Distribuição por categoria</h3>${reportDonut(cats,t.total)}</article><article class="chart bars"><h3>Comparativo de gastos</h3>${cats.map(c=>`<p><span>${c.name}</span><span class="track"><i style="width:${c.value/max*100}%;background:${c.color}"></i></span><b>${money(c.value)}</b></p>`).join("")||"<p>Sem despesas</p>"}</article></section><article class="chart" style="margin-top:10px"><h3>Composição da renda</h3><div class="stack"><i style="width:${Math.min(t.total/(month.income||1)*100,100)}%;background:#7957ff"></i><i style="width:${Math.min(month.investment/(month.income||1)*100,100)}%;background:#d89d15"></i><i style="flex:1;background:#0aa78f"></i></div><p>Despesas ${money(t.total)} • Investimentos ${money(month.investment)} • Livre ${money(t.balance)}</p></article><table><thead><tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Vencimento</th><th>Status</th></tr></thead><tbody>${month.expenses.map(e=>`<tr><td>${esc(e.description)}</td><td>${e.category}</td><td>${money(e.value)}</td><td>${e.dueDate.split("-").reverse().join("/")}</td><td>${e.paid?"Pago":"Pendente"}</td></tr>`).join("")||`<tr><td colspan="5">Sem despesas</td></tr>`}</tbody></table><button onclick="print()">Salvar como PDF</button><script>setTimeout(()=>print(),500)<\/script></body></html>`);w.document.close();
 }
+function cloudConfigured(){
+  const config=window.DESPS_SUPABASE||{};
+  return Boolean(config.url&&config.anonKey&&window.supabase?.createClient);
+}
+function renderShareStatus(){
+  const label=$("#shareStatus");if(!label)return;
+  label.textContent=cloud.active?.name||"Pessoal";
+  $("#shareBtn").classList.toggle("connected",Boolean(cloud.active));
+}
+function applySharedPermissions(){
+  const viewer=cloud.active&&cloud.role==="viewer";
+  document.body.classList.toggle("sharedviewer",Boolean(viewer));
+  if(!viewer)return;
+  document.querySelectorAll("[data-action],[data-toggle],[data-edit],[data-delete],[data-card-edit],[data-contribute],#quickAdd,#voiceAdd").forEach(button=>button.disabled=true);
+}
+function queueCloudSave(){
+  if(!cloud.client||!cloud.active||cloud.role==="viewer")return;
+  clearTimeout(cloud.saveTimer);
+  cloud.saveTimer=setTimeout(saveSharedState,650);
+}
+async function saveSharedState(){
+  if(!cloud.client||!cloud.active||cloud.role==="viewer"||cloud.applying)return;
+  const nextRevision=cloud.revision+1;
+  const {error}=await cloud.client.from("household_snapshots").upsert({
+    household_id:cloud.active.id,data:state,revision:nextRevision,
+    updated_by:cloud.user.id,updated_at:new Date().toISOString()
+  },{onConflict:"household_id"});
+  if(error){toast("Não foi possível sincronizar agora. Seus dados continuam salvos neste aparelho.");return}
+  cloud.revision=nextRevision;renderShareStatus();
+}
+async function loadHouseholds(){
+  if(!cloud.client||!cloud.user)return;
+  const {data,error}=await cloud.client.from("household_members").select("household_id,role,households(id,name,owner_id)").eq("user_id",cloud.user.id);
+  if(error){cloud.households=[];return}
+  cloud.households=(data||[]).map(item=>({...item.households,role:item.role})).filter(item=>item.id);
+}
+async function activateHousehold(id,{keepPersonal=true}={}){
+  const household=cloud.households.find(item=>item.id===id);if(!household)return;
+  if(keepPersonal&&!cloud.active)localStorage.setItem(PERSONAL_STORE,JSON.stringify(state));
+  if(cloud.channel)await cloud.client.removeChannel(cloud.channel);
+  cloud.active=household;cloud.role=household.role;localStorage.setItem(ACTIVE_HOUSEHOLD,id);
+  const {data,error}=await cloud.client.from("household_snapshots").select("data,revision,updated_by,updated_at").eq("household_id",id).maybeSingle();
+  if(error){toast("Não foi possível abrir o orçamento compartilhado.");return}
+  if(data?.data?.version===2){
+    cloud.applying=true;state=data.data;localStorage.setItem(STORE,JSON.stringify(state));cloud.applying=false;
+    cloud.revision=Number(data.revision)||0;cloud.lastEditor=data.updated_by;cloud.lastUpdate=data.updated_at;
+  }else if(cloud.role!=="viewer"){
+    cloud.revision=0;await saveSharedState();
+  }
+  cloud.channel=cloud.client.channel(`household:${id}`)
+    .on("postgres_changes",{event:"*",schema:"public",table:"household_snapshots",filter:`household_id=eq.${id}`},payload=>{
+      const row=payload.new;if(!row?.data||row.updated_by===cloud.user?.id||Number(row.revision)<=cloud.revision)return;
+      cloud.applying=true;state=row.data;cloud.revision=Number(row.revision)||cloud.revision;cloud.lastEditor=row.updated_by;cloud.lastUpdate=row.updated_at;
+      localStorage.setItem(STORE,JSON.stringify(state));cloud.applying=false;render();toast("Orçamento atualizado por outro participante.");
+    }).subscribe();
+  render();closeModal();toast(`Orçamento “${household.name}” conectado em tempo real.`);
+}
+async function usePersonalMode(){
+  if(cloud.channel)await cloud.client.removeChannel(cloud.channel);
+  cloud.channel=null;cloud.active=null;cloud.role=null;cloud.revision=0;localStorage.removeItem(ACTIVE_HOUSEHOLD);
+  try{const personal=JSON.parse(localStorage.getItem(PERSONAL_STORE)||"null");if(personal?.version===2)state=personal}catch{}
+  localStorage.setItem(STORE,JSON.stringify(state));render();closeModal();toast("Modo pessoal ativado.");
+}
+async function createHousehold(name){
+  const {data,error}=await cloud.client.from("households").insert({name,owner_id:cloud.user.id}).select().single();
+  if(error){toast("Não foi possível criar o espaço compartilhado.");return}
+  await loadHouseholds();await activateHousehold(data.id);
+}
+async function createInvite(role){
+  if(!cloud.active)return;
+  const {data,error}=await cloud.client.from("household_invites").insert({
+    household_id:cloud.active.id,role,created_by:cloud.user.id
+  }).select("token").single();
+  if(error){toast("Somente o proprietário pode criar convites.");return}
+  const url=new URL(location.href);url.search="";url.hash="";url.searchParams.set("invite",data.token);
+  try{await navigator.clipboard.writeText(url.href);toast("Convite copiado. Envie o link para a outra pessoa.");}
+  catch{prompt("Copie e envie este convite:",url.href)}
+}
+async function acceptPendingInvite(){
+  const token=new URL(location.href).searchParams.get("invite");if(!token||!cloud.user)return;
+  const {data,error}=await cloud.client.rpc("accept_household_invite",{invite_token:token});
+  if(error){toast("Este convite é inválido ou expirou.");return}
+  history.replaceState({},document.title,location.pathname);
+  await loadHouseholds();await activateHousehold(data);
+}
+function sharingContent(){
+  if(!cloudConfigured())return`<span class="eyebrow">COMPARTILHAMENTO</span><h2>Sincronização em configuração</h2><p>O modo pessoal continua disponível e seguro neste aparelho. Para ativar contas e compartilhamento, o administrador precisa conectar o aplicativo ao serviço de sincronização.</p><div class="privacybox"><b>Nenhum dado foi enviado.</b><span>Até a configuração ser concluída, suas informações permanecem somente neste dispositivo.</span></div>`;
+  if(!cloud.user)return`<form id="shareLogin"><span class="eyebrow">COMPARTILHAMENTO SEGURO</span><h2>Entrar para compartilhar</h2><p>Use seu e-mail para receber um link de acesso. Não é necessário criar senha.</p><label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="voce@exemplo.com"></label><button class="primary">Enviar link de acesso</button><div class="privacybox"><b>Seus dados pessoais continuam privados.</b><span>Somente um espaço criado ou aceito por você será sincronizado.</span></div></form>`;
+  const spaces=cloud.households.map(h=>`<button type="button" class="spaceitem ${cloud.active?.id===h.id?"active":""}" data-space="${h.id}"><span><b>${esc(h.name)}</b><small>${h.role==="owner"?"Proprietário":h.role==="editor"?"Pode editar":"Somente leitura"}</small></span><strong>${cloud.active?.id===h.id?"Conectado":"Abrir"}</strong></button>`).join("");
+  return`<span class="eyebrow">TEMPO REAL</span><h2>Compartilhar orçamento</h2><p class="accountline">${esc(cloud.user.email)}</p>
+    ${cloud.active?`<div class="connectedbox"><span class="livepulse"></span><span><b>${esc(cloud.active.name)}</b><small>Sincronização ativa${cloud.lastUpdate?` • atualizada ${new Date(cloud.lastUpdate).toLocaleString("pt-BR")}`:""}</small></span></div>`:""}
+    <div class="spacelist">${spaces||`<div class="empty">Você ainda não participa de nenhum orçamento.</div>`}</div>
+    <form id="newHousehold" class="inlineform"><input name="name" maxlength="80" placeholder="Ex.: Orçamento da família" required><button class="primary">Criar espaço</button></form>
+    ${cloud.active&&cloud.role==="owner"?`<div class="invitebox"><b>Convidar participante</b><p>O convite vale por 7 dias. Escolha o acesso e envie o link gerado.</p><div><button id="inviteEditor" class="secondary">Pode editar</button><button id="inviteViewer" class="secondary">Somente visualizar</button></div></div>`:""}
+    <div class="sharefooter">${cloud.active?`<button id="personalMode" class="secondary">Voltar ao modo pessoal</button>`:""}<button id="signOut" class="textbtn">Sair da conta</button></div>`;
+}
+function bindSharingModal(){
+  $("#shareLogin")?.addEventListener("submit",async event=>{
+    event.preventDefault();const email=new FormData(event.currentTarget).get("email");
+    const {error}=await cloud.client.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});
+    toast(error?"Não foi possível enviar o acesso.":"Enviamos um link de acesso para seu e-mail.");if(!error)closeModal();
+  });
+  $("#newHousehold")?.addEventListener("submit",event=>{event.preventDefault();createHousehold(String(new FormData(event.currentTarget).get("name")).trim())});
+  document.querySelectorAll("[data-space]").forEach(button=>button.onclick=()=>activateHousehold(button.dataset.space));
+  if($("#inviteEditor"))$("#inviteEditor").onclick=()=>createInvite("editor");
+  if($("#inviteViewer"))$("#inviteViewer").onclick=()=>createInvite("viewer");
+  if($("#personalMode"))$("#personalMode").onclick=usePersonalMode;
+  if($("#signOut"))$("#signOut").onclick=async()=>{await usePersonalMode();await cloud.client.auth.signOut();cloud.user=null;cloud.households=[];toast("Conta desconectada.")};
+}
+function openSharing(){
+  $("#modalContent").innerHTML=sharingContent();$("#modalBack").classList.add("show");bindSharingModal();
+}
+async function initSharing(){
+  if(!cloudConfigured()){renderShareStatus();return}
+  const config=window.DESPS_SUPABASE;cloud.client=window.supabase.createClient(config.url,config.anonKey);
+  const {data}=await cloud.client.auth.getSession();cloud.user=data.session?.user||null;
+  cloud.client.auth.onAuthStateChange(async(_event,session)=>{
+    cloud.user=session?.user||null;
+    if(cloud.user){await loadHouseholds();await acceptPendingInvite();renderShareStatus();}
+  });
+  if(!cloud.user)return;
+  await loadHouseholds();
+  if(new URL(location.href).searchParams.get("invite")){await acceptPendingInvite();return}
+  const saved=localStorage.getItem(ACTIVE_HOUSEHOLD);
+  if(saved&&cloud.households.some(item=>item.id===saved))await activateHousehold(saved,{keepPersonal:false});
+}
 async function enableNotifications(){
   if(!("Notification"in window)){toast("Este navegador não oferece notificações.");return}
   const result=await Notification.requestPermission();state.settings.notifications=result==="granted";persist();toast(result==="granted"?"Alertas autorizados.":"Notificações não foram autorizadas.");
@@ -215,6 +345,7 @@ function notifyDue(){
 }
 $("#prevMonth").onclick=()=>switchMonth(-1);$("#nextMonth").onclick=()=>switchMonth(1);$("#currentMonth").onclick=()=>{ensureMonth(nowMonth());state.selectedMonth=nowMonth();persist();render()};
 $("#themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("despesas-pessoais-theme",document.body.classList.contains("dark")?"dark":"light")};
+$("#shareBtn").onclick=openSharing;
 $("#monthPick").onclick=()=>{const value=prompt("Digite o mês no formato AAAA-MM:",state.selectedMonth);if(/^\\d{4}-(0[1-9]|1[0-2])$/.test(value||"")){ensureMonth(value);state.selectedMonth=value;persist();render()}};
 $("#search").oninput=e=>{query=e.target.value;renderExpenses()};$("#filter").onchange=e=>{filter=e.target.value;renderExpenses()};
 $("#modalClose").onclick=closeModal;$("#modalBack").onclick=e=>{if(e.target.id==="modalBack")closeModal()};
@@ -225,4 +356,4 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installProm
 $("#installBtn").onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null}else toast(/iPhone|iPad/.test(navigator.userAgent)?"No Safari, use Compartilhar → Adicionar à Tela de Início.":"No menu do navegador, escolha Instalar aplicativo.")};
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)$("#installBtn").hidden=true;
 if("serviceWorker"in navigator)navigator.serviceWorker.register("./service-worker.js");
-window.setFilterValue=setFilterValue;render();notifyDue();
+window.setFilterValue=setFilterValue;render();notifyDue();initSharing();

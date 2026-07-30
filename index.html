@@ -8,7 +8,8 @@
   <title>Despesas Pessoais</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg">
-  <link rel="stylesheet" href="./styles.css?refresh=1">
+  <link rel="stylesheet" href="./styles.css?refresh=2">
+  <link rel="stylesheet" href="./sharing.css?v=1">
   <style>
     body.dark{--ink:#f4f1ff;--muted:#aaa4ba;--line:#383348;--bg:#14111f;--white:#201c2d}
     body.dark .topbar,body.dark .panel,body.dark .summarycard,body.dark .modal,body.dark .ghost,body.dark .secondary{background:#201c2d}
@@ -20,7 +21,9 @@
     @keyframes pulseMic{50%{transform:scale(1.04)}}
   </style>
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script defer src="./app.js?voice=1"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="./supabase-config.js"></script>
+  <script defer src="./app.js?sharing=1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -28,7 +31,7 @@
     <nav>
       <a href="#inicio">Visão geral</a><a href="#movimentos">Despesas</a><a href="#planejamento">Planejamento</a><a href="#relatorios">Relatórios</a><a href="#assistente">Assistente</a>
     </nav>
-    <button class="ghost" id="themeBtn" aria-label="Alternar tema">◐</button><button class="ghost install" id="installBtn">⇩ Instalar</button>
+    <div class="headeractions"><button class="ghost sharebutton" id="shareBtn" aria-label="Compartilhar orçamento"><span id="shareStatus">Pessoal</span> ◉</button><button class="ghost" id="themeBtn" aria-label="Alternar tema">◐</button><button class="ghost install" id="installBtn">⇩ Instalar</button></div>
   </header>
 
   <main class="page">
