@@ -1,6 +1,6 @@
-const CACHE="despesas-pessoais-github-v10";
+const CACHE="despesas-pessoais-github-v11";
 const ROOT="/despesas-pessoais/";
-const SHELL=[ROOT,ROOT+"index.html",ROOT+"styles.css?refresh=2",ROOT+"sharing.css?v=1",ROOT+"app.js?sharing=1",ROOT+"supabase-config.js",ROOT+"manifest.webmanifest",ROOT+"icon.svg"];
+const SHELL=[ROOT,ROOT+"index.html",ROOT+"styles.css?refresh=2",ROOT+"sharing.css?v=1",ROOT+"app.js?sharing=1",ROOT+"supabase-config.js?v=2",ROOT+"manifest.webmanifest",ROOT+"icon.svg"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));self.skipWaiting()});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))));self.clients.claim()});
 self.addEventListener("fetch",event=>{
