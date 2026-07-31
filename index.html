@@ -8,8 +8,9 @@
   <title>Despesas Pessoais</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg">
-  <link rel="stylesheet" href="./styles.css?refresh=2">
+  <link rel="stylesheet" href="./styles.css?refresh=3">
   <link rel="stylesheet" href="./sharing.css?v=1">
+  <link rel="stylesheet" href="./statement-import.css?v=1">
   <style>
     body.dark{--ink:#f4f1ff;--muted:#aaa4ba;--line:#383348;--bg:#14111f;--white:#201c2d}
     body.dark .topbar,body.dark .panel,body.dark .summarycard,body.dark .modal,body.dark .ghost,body.dark .secondary{background:#201c2d}
@@ -21,9 +22,11 @@
     @keyframes pulseMic{50%{transform:scale(1.04)}}
   </style>
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="./supabase-config.js?v=2"></script>
-  <script defer src="./app.js?sharing=1"></script>
+  <script defer src="./app.js?statement=1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -69,8 +72,9 @@
 
     <section class="planning" id="planejamento">
       <article class="panel">
-        <header class="panelhead"><div><span class="eyebrow">CARTÕES</span><h2>Faturas e limites</h2></div><button class="textbtn" data-action="card">＋ Cartão</button></header>
+        <header class="panelhead"><div><span class="eyebrow">CARTÕES</span><h2>Faturas e limites</h2></div><div class="cardactions"><button class="textbtn" id="statementBtn">⇧ Importar fatura</button><button class="textbtn" data-action="card">＋ Cartão</button></div></header>
         <div class="cardslist" id="cardsList"></div>
+        <input type="file" id="statementFile" accept="application/pdf,image/png,image/jpeg,image/webp" hidden>
       </article>
       <article class="panel">
         <header class="panelhead"><div><span class="eyebrow">OBJETIVOS</span><h2>Metas financeiras</h2></div><button class="textbtn" data-action="goal">＋ Meta</button></header>

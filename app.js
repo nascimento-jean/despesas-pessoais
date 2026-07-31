@@ -30,6 +30,7 @@ function loadState(){
 }
 let state=loadState(),filter="Todos",query="",editing=null,installPrompt=null,deletedUndo=null;
 let cloud={client:null,user:null,households:[],active:null,role:null,channel:null,revision:0,applying:false,saveTimer:null,lastEditor:null,lastUpdate:null};
+let statementDraft=null;
 document.body.classList.toggle("dark",localStorage.getItem("despesas-pessoais-theme")==="dark");
 const $=selector=>document.querySelector(selector);
 function persist(){
@@ -169,6 +170,233 @@ function quickAdd(text){
   const parsed=parseExpense(text);if(!parsed){toast("Não identifiquei o valor. Tente: “Gastei 85 no supermercado hoje”.");return false}
   current().expenses.unshift({...parsed,id:uid(),paid:false,recurring:false,cardId:"",installment:1,totalInstallments:1,seriesId:null});persist();render();toast(`${parsed.description} adicionada: ${money(parsed.value)}.`);return true;
 }
+function normalizeMerchant(value){
+  return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase()
+    .replace(/\b(LTDA|SA|S A|ME|EIRELI|BRASIL|COMPRA|CARTAO)\b/g," ").replace(/[^A-Z0-9 ]/g," ").replace(/\s+/g," ").trim();
+}
+function learnedCategory(description){
+  const learned=state.settings?.merchantCategories||{},key=normalizeMerchant(description);
+  const direct=learned[key];if(direct)return direct;
+  const known=Object.keys(learned).find(item=>item.length>3&&(key.includes(item)||item.includes(key)));
+  return known?learned[known]:null;
+}
+function guessStatementCategory(description){
+  const learned=learnedCategory(description);if(learned)return learned;
+  const text=normalizeMerchant(description).toLowerCase();
+  const rules=[
+    ["Alimentação",/mercad|supermerc|atacad|restaur|lanch|padaria|ifood|food|acai|cafe|burger|pizza/],
+    ["Transporte",/posto|combust|gasolin|uber|99 |estacion|pedagio|mobilidade|passagem|azul|latam|gol linhas/],
+    ["Moradia",/energia|equatorial|agua|saneamento|condominio|aluguel|material constr|leroy/],
+    ["Saúde",/farm|drog|pague menos|hospital|clinic|laborat|medic|saude|odonto/],
+    ["Educação",/escola|faculdade|curso|livraria|udemy|alura|educa/],
+    ["Assinaturas",/netflix|spotify|amazon prime|google one|apple com|youtube|disney|hbo|assinatura|internet|claro|vivo|tim /],
+    ["Lazer",/cinema|teatro|show|viagem|hotel|booking|airbnb|parque|ingresso/]
+  ];
+  return rules.find(([,rule])=>rule.test(text))?.[0]||"Outros";
+}
+function statementDate(day,month,year){
+  const [selectedYear,selectedMonth]=state.selectedMonth.split("-").map(Number);
+  const parsedMonth=Number(month)||selectedMonth,parsedYear=year?Number(String(year).length===2?`20${year}`:year):selectedYear;
+  return `${parsedYear}-${String(parsedMonth).padStart(2,"0")}-${String(Number(day)).padStart(2,"0")}`;
+}
+function statementAmount(raw){
+  let value=String(raw||"").replace(/R\$/gi,"").replace(/\s/g,""),negative=/^-|\(|CR$/i.test(value);
+  value=value.replace(/[()A-Za-z]/g,"");
+  if(value.includes(","))value=value.replace(/\./g,"").replace(",",".");
+  else if((value.match(/\./g)||[]).length>1)value=value.replace(/\./g,"");
+  const number=Number(value.replace(/^-/,''));return Number.isFinite(number)?(negative?-number:number):null;
+}
+function possibleDuplicate(item){
+  const target=normalizeMerchant(item.description),date=new Date(`${item.transactionDate}T12:00:00`).getTime();
+  return Object.values(state.months).some(month=>month.expenses.some(expense=>{
+    if(Math.abs(Number(expense.value)-Math.abs(item.value))>.01)return false;
+    const other=normalizeMerchant(expense.description),similar=other===target||(other.length>5&&target.length>5&&(other.includes(target)||target.includes(other)));
+    const otherDate=new Date(`${expense.transactionDate||expense.dueDate}T12:00:00`).getTime();
+    return similar&&Math.abs(otherDate-date)<=4*864e5;
+  }));
+}
+function parseStatementLocally(text,method){
+  const cleaned=String(text||"").replace(/\u00a0/g," ").replace(/[ \t]+/g," ").replace(/\r/g,"");
+  const monthNames={JAN:1,FEV:2,MAR:3,ABR:4,MAI:5,JUN:6,JUL:7,AGO:8,SET:9,OUT:10,NOV:11,DEZ:12};
+  const dueMatch=cleaned.match(/(?:VENCIMENTO|VENCE EM|DATA DE VENCIMENTO)[^\d]{0,30}(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?/i);
+  const dueDate=dueMatch?statementDate(dueMatch[1],dueMatch[2],dueMatch[3]):null;
+  const totalMatches=[...cleaned.matchAll(/(?:TOTAL(?: DA)? FATURA|VALOR TOTAL|TOTAL A PAGAR)[^\d-]{0,30}(?:R\$\s*)?(-?[\d.]+,\d{2})/gi)];
+  const invoiceTotal=totalMatches.length?Math.abs(statementAmount(totalMatches.at(-1)[1])):null;
+  const issuer=(cleaned.match(/\b(NUBANK|ITA[ÚU]|BRADESCO|SANTANDER|CAIXA|INTER|C6 BANK|BANCO DO BRASIL|BTG|XP|NEON|PICPAY)\b/i)||[])[1]||"Não identificado";
+  const items=[];let pending=null;
+  for(const original of cleaned.split("\n").map(line=>line.trim()).filter(Boolean)){
+    const line=original.replace(/\s+/g," ");
+    let match=line.match(/^(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?\s+(.+?)\s+(?:R\$\s*)?(-?[\d.]+,\d{2})(?:\s*(CR))?$/i);
+    if(!match){
+      const named=line.match(/^(\d{1,2})\s+(JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ)\s+(.+?)\s+(?:R\$\s*)?(-?[\d.]+,\d{2})(?:\s*(CR))?$/i);
+      if(named)match=[named[0],named[1],monthNames[named[2].toUpperCase()],null,named[3],named[4],named[5]];
+    }
+    if(!match){
+      const start=line.match(/^(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?\s+(.+)$/);
+      if(start){pending={day:start[1],month:start[2],year:start[3],description:start[4]};continue}
+      if(pending){
+        const amount=line.match(/^(.*?)(?:R\$\s*)?(-?[\d.]+,\d{2})(?:\s*(CR))?$/i);
+        if(amount){match=[line,pending.day,pending.month,pending.year,`${pending.description} ${amount[1]}`.trim(),amount[2],amount[3]];pending=null}
+      }
+    }
+    if(!match)continue;
+    let description=match[4].replace(/\s+/g," ").trim(),value=statementAmount(`${match[5]}${match[6]?" CR":""}`);
+    if(value===null||!description||Math.abs(value)>1000000)continue;
+    const ignored=/^(TOTAL|SUBTOTAL|SALDO|LIMITE|VENCIMENTO)|PAGAMENTO (RECEBIDO|EFETUADO)|SALDO ANTERIOR/i.test(description);
+    const installment=description.match(/(?:PARC(?:ELA)?\s*)?(\d{1,2})\s*[\/-]\s*(\d{1,2})\b/i);
+    description=description.replace(/\s{2,}/g," ");
+    const item={description,value:Math.abs(value),transactionDate:statementDate(match[1],match[2],match[3]),category:guessStatementCategory(description),
+      installment:installment?Number(installment[1]):1,totalInstallments:installment?Number(installment[2]):1,
+      selected:!ignored&&value>0,confidence:method.includes("OCR")?"média":"alta",credit:value<0,ignored};
+    item.duplicate=possibleDuplicate(item);if(item.duplicate)item.selected=false;
+    items.push(item);
+  }
+  return{issuer,dueDate,invoiceTotal,items};
+}
+function setStatementProgress(title,detail=""){
+  const content=$("#modalContent");if(!content)return;
+  content.innerHTML=`<div class="importprogress"><span class="spinner"></span><strong>${esc(title)}</strong><small>${esc(detail)}</small></div>`;
+}
+async function fileFingerprint(file){
+  const buffer=await file.arrayBuffer(),hash=await crypto.subtle.digest("SHA-256",buffer);
+  return[...new Uint8Array(hash)].map(value=>value.toString(16).padStart(2,"0")).join("");
+}
+function groupPdfText(items){
+  const rows=new Map();
+  items.forEach(item=>{const y=Math.round(item.transform?.[5]||0),key=[...rows.keys()].find(existing=>Math.abs(existing-y)<=2)??y;if(!rows.has(key))rows.set(key,[]);rows.get(key).push({x:item.transform?.[4]||0,text:item.str})});
+  return[...rows.entries()].sort((a,b)=>b[0]-a[0]).map(([,parts])=>parts.sort((a,b)=>a.x-b.x).map(part=>part.text).join(" ")).join("\n");
+}
+async function ocrCanvas(canvas,label){
+  if(!window.Tesseract)throw new Error("OCR indisponível");
+  const result=await Tesseract.recognize(canvas,"por",{logger:status=>{
+    if(status.status==="recognizing text")setStatementProgress("Lendo fatura digitalizada",`${label} • ${Math.round(status.progress*100)}%`);
+  }});
+  return result.data.text||"";
+}
+async function extractPdfStatement(file){
+  if(!window.pdfjsLib)throw new Error("Leitor de PDF indisponível");
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  if(pdf.numPages>30)throw new Error("A fatura possui mais de 30 páginas");
+  const textPages=[],weakPages=[];
+  for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
+    setStatementProgress("Extraindo informações do PDF",`Página ${pageNumber} de ${pdf.numPages}`);
+    const page=await pdf.getPage(pageNumber),content=await page.getTextContent(),pageText=groupPdfText(content.items);
+    textPages.push(pageText);if(pageText.replace(/\s/g,"").length<80)weakPages.push({page,pageNumber});
+  }
+  let method="PDF com texto";
+  for(const {page,pageNumber} of weakPages){
+    const viewport=page.getViewport({scale:1.7}),canvas=document.createElement("canvas");
+    canvas.width=Math.round(viewport.width);canvas.height=Math.round(viewport.height);
+    await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+    textPages[pageNumber-1]=await ocrCanvas(canvas,`Página ${pageNumber} de ${pdf.numPages}`);method="PDF + OCR";
+  }
+  return{text:textPages.join("\n"),method,pages:pdf.numPages};
+}
+async function extractImageStatement(file){
+  setStatementProgress("Preparando imagem","A qualidade da foto influencia o reconhecimento.");
+  const bitmap=await createImageBitmap(file),scale=Math.min(2,2600/Math.max(bitmap.width,bitmap.height)),canvas=document.createElement("canvas");
+  canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+  canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+  return{text:await ocrCanvas(canvas,"Imagem"),method:"OCR de imagem",pages:1};
+}
+async function analyzeStatementWithAI(text){
+  if(!cloud.client||!cloud.user||text.length<20)return null;
+  try{
+    setStatementProgress("Revisando com inteligência artificial","Organizando compras, parcelas e categorias.");
+    const {data,error}=await cloud.client.functions.invoke("extract-statement",{body:{text:text.slice(0,70000),selectedMonth:state.selectedMonth,categories:CATEGORIES.map(item=>item.name)}});
+    if(error||!data?.items?.length)return null;return data;
+  }catch{return null}
+}
+function normalizeAIStatement(ai,local,method){
+  if(!ai?.items?.length)return local;
+  const items=ai.items.map(item=>{
+    const transactionDate=/^\d{4}-\d{2}-\d{2}$/.test(item.date||"")?item.date:state.selectedMonth+"-01";
+    const normalized={description:String(item.description||"Despesa").trim(),value:Math.abs(Number(item.value)||0),transactionDate,
+      category:CATEGORIES.some(c=>c.name===item.category)?item.category:guessStatementCategory(item.description),
+      installment:Number(item.installment)||1,totalInstallments:Number(item.totalInstallments)||1,
+      selected:Number(item.value)>0&&!item.credit,confidence:item.confidence||"alta",credit:Boolean(item.credit),ignored:Boolean(item.ignored)};
+    normalized.duplicate=possibleDuplicate(normalized);if(normalized.duplicate)normalized.selected=false;return normalized;
+  }).filter(item=>item.value>0);
+  return{issuer:ai.issuer||local.issuer,dueDate:ai.dueDate||local.dueDate,invoiceTotal:Number(ai.invoiceTotal)||local.invoiceTotal,items,aiUsed:true,method:`${method} + IA`};
+}
+function statementMonthOptions(targetMonth=state.selectedMonth){
+  return Array.from({length:13},(_,index)=>monthShift(targetMonth,index-6)).map(key=>`<option value="${key}" ${key===targetMonth?"selected":""}>${monthName(key)}</option>`).join("");
+}
+function renderStatementReview(){
+  const draft=statementDraft,content=$("#modalContent"),suggestedMonth=draft.dueDate?.slice(0,7)||state.selectedMonth;
+  const suggestedCard=state.cards.find(card=>{
+    const cardName=normalizeMerchant(card.name),issuer=normalizeMerchant(draft.issuer);
+    return issuer&&issuer!=="emissor nao identificado"&&(cardName.includes(issuer)||issuer.includes(cardName));
+  });
+  const rows=draft.items.map((item,index)=>{
+    const status=item.duplicate?"Possível duplicidade":item.confidence==="baixa"?"Revisar":item.credit?"Crédito":"Reconhecido",rowClass=item.duplicate?"duplicate":item.confidence==="baixa"?"lowconfidence":"";
+    return`<div class="importrow ${rowClass}" data-import-row="${index}"><input type="checkbox" data-field="selected" ${item.selected?"checked":""}>
+      <input type="date" data-field="transactionDate" value="${item.transactionDate}">
+      <input data-field="description" value="${esc(item.description)}" aria-label="Descrição">
+      <select data-field="category">${CATEGORIES.map(category=>`<option ${category.name===item.category?"selected":""}>${category.name}</option>`).join("")}</select>
+      <input type="number" min="0.01" step="0.01" data-field="value" value="${item.value.toFixed(2)}" aria-label="Valor">
+      <span class="flag">${status}</span></div>`;
+  }).join("");
+  content.innerHTML=`<span class="eyebrow">CONFERÊNCIA OBRIGATÓRIA</span><h2>Revisar fatura importada</h2>
+    <div class="importintro"><span>✦</span><div><b>${esc(draft.fileName)}</b><small>${esc(draft.method)} • ${draft.pages} página(s). O arquivo não foi armazenado.</small></div></div>
+    <div class="statementsummary"><div><small>Emissor</small><b>${esc(draft.issuer)}</b></div><div><small>Total identificado</small><b>${draft.invoiceTotal?money(draft.invoiceTotal):"Não identificado"}</b></div><div><small>Vencimento</small><b>${draft.dueDate?draft.dueDate.split("-").reverse().join("/"):"Não identificado"}</b></div><div><small>Lançamentos</small><b>${draft.items.length}</b></div></div>
+    <div class="importcontrols"><label>Cartão<select id="importCard"><option value="">Sem cartão vinculado</option>${state.cards.map(card=>`<option value="${card.id}" ${card.id===suggestedCard?.id?"selected":""}>${esc(card.name)}</option>`).join("")}</select></label><label>Mês da fatura<select id="importMonth">${statementMonthOptions(suggestedMonth)}</select></label></div>
+    <div class="importreview"><div class="importrow head"><span></span><span>COMPRA</span><span>DESCRIÇÃO</span><span>CATEGORIA</span><span>VALOR</span><span>ANÁLISE</span></div>${rows||`<div class="empty">Nenhuma compra foi reconhecida. Tente uma imagem mais nítida ou outro PDF.</div>`}</div>
+    <div class="importtotals"><div><small>Selecionadas para importação</small><b id="importCount">0 despesas</b><span id="importReconciliation"></span></div><strong id="importTotal">${money(0)}</strong></div>
+    <div class="importactions"><button class="secondary" type="button" id="cancelImport">Cancelar</button><button class="primary" type="button" id="confirmImport" ${rows?"":"disabled"}>Confirmar e cadastrar despesas</button></div>
+    <p class="importnotice">Itens sinalizados como duplicados ou créditos ficam desmarcados. Revise todas as informações antes de confirmar.</p>`;
+  document.querySelectorAll("[data-import-row]").forEach(row=>row.querySelectorAll("[data-field]").forEach(input=>input.onchange=()=>{
+    const item=draft.items[Number(row.dataset.importRow)],field=input.dataset.field;item[field]=field==="selected"?input.checked:field==="value"?Number(input.value):input.value;
+    if(field==="category")item.categoryManual=true;updateStatementTotals();
+  }));
+  $("#cancelImport").onclick=closeModal;$("#confirmImport").onclick=confirmStatementImport;updateStatementTotals();
+}
+function updateStatementTotals(){
+  const selected=statementDraft?.items.filter(item=>item.selected&&item.value>0)||[];
+  const total=selected.reduce((sum,item)=>sum+Number(item.value),0),invoiceTotal=Number(statementDraft?.invoiceTotal)||0;
+  $("#importCount").textContent=`${selected.length} despesa${selected.length===1?"":"s"}`;$("#importTotal").textContent=money(total);
+  const reconciliation=$("#importReconciliation");
+  if(invoiceTotal&&Math.abs(invoiceTotal-total)>0.01){
+    reconciliation.textContent=`Diferença para o total da fatura: ${money(invoiceTotal-total)}`;
+    reconciliation.className="warning";
+  }else if(invoiceTotal){
+    reconciliation.textContent="Valores conferem com o total identificado";
+    reconciliation.className="ok";
+  }else{
+    reconciliation.textContent="Total da fatura não identificado; confira os itens";
+    reconciliation.className="warning";
+  }
+}
+function confirmStatementImport(){
+  const selected=statementDraft.items.filter(item=>item.selected&&item.value>0&&item.description.trim());
+  if(!selected.length){toast("Selecione ao menos uma despesa para importar.");return}
+  const monthKey=$("#importMonth").value,cardId=$("#importCard").value;ensureMonth(monthKey);
+  const dueDay=statementDraft.dueDate?.slice(8,10)||state.cards.find(card=>card.id===cardId)?.due||1;
+  for(const item of selected){
+    state.months[monthKey].expenses.unshift({id:uid(),description:item.description.trim(),value:Number(item.value),dueDate:dueFor(monthKey,dueDay),
+      transactionDate:item.transactionDate,category:item.category,payment:"Crédito",cardId,paid:false,recurring:false,seriesId:null,
+      installment:item.installment||1,totalInstallments:item.totalInstallments||1,imported:true,statementFingerprint:statementDraft.fingerprint});
+    if(item.categoryManual){state.settings.merchantCategories=state.settings.merchantCategories||{};state.settings.merchantCategories[normalizeMerchant(item.description)]=item.category}
+  }
+  state.settings.statementImports=state.settings.statementImports||[];
+  state.settings.statementImports.push({id:uid(),fingerprint:statementDraft.fingerprint,fileName:statementDraft.fileName,month:monthKey,cardId,count:selected.length,total:selected.reduce((sum,item)=>sum+Number(item.value),0),importedAt:new Date().toISOString(),method:statementDraft.method});
+  state.selectedMonth=monthKey;persist();statementDraft=null;closeModal();render();toast(`${selected.length} despesa${selected.length===1?"":"s"} importada${selected.length===1?"":"s"} com sucesso.`);
+}
+async function importStatement(file){
+  if(!file)return;if(file.size>20*1024*1024){toast("Escolha uma fatura com até 20 MB.");return}
+  editing={type:"statement",id:null};$("#modalBack").classList.add("show");setStatementProgress("Preparando importação","O arquivo será processado temporariamente.");
+  try{
+    const fingerprint=await fileFingerprint(file),previous=state.settings?.statementImports?.some(item=>item.fingerprint===fingerprint);
+    const extracted=file.type==="application/pdf"||file.name.toLowerCase().endsWith(".pdf")?await extractPdfStatement(file):await extractImageStatement(file);
+    setStatementProgress("Identificando lançamentos","Separando datas, estabelecimentos, valores e parcelas.");
+    const local=parseStatementLocally(extracted.text,extracted.method),ai=await analyzeStatementWithAI(extracted.text),analysis=normalizeAIStatement(ai,local,extracted.method);
+    statementDraft={...analysis,fileName:file.name,fingerprint,pages:extracted.pages,method:analysis.method||extracted.method};
+    if(previous)statementDraft.items.forEach(item=>{item.duplicate=true;item.selected=false});
+    renderStatementReview();if(previous)toast("Esta fatura já foi importada. Os itens foram marcados como possíveis duplicidades.");
+  }catch(error){$("#modalContent").innerHTML=`<span class="eyebrow">NÃO FOI POSSÍVEL LER</span><h2>Revise o arquivo</h2><p>${esc(error.message||"O formato da fatura não foi reconhecido.")}</p><div class="privacybox"><b>Tente novamente</b><span>Use um PDF sem senha ou uma imagem nítida, reta e com boa iluminação.</span></div><button class="primary" type="button" id="retryStatement">Escolher outro arquivo</button>`;$("#retryStatement").onclick=()=>$("#statementFile").click()}
+  finally{$("#statementFile").value=""}
+}
 function startVoiceExpense(){
   const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SpeechRecognition){toast("O reconhecimento de voz não está disponível neste navegador. No Android, use o Chrome atualizado.");return}
@@ -222,7 +450,7 @@ function applySharedPermissions(){
   const viewer=cloud.active&&cloud.role==="viewer";
   document.body.classList.toggle("sharedviewer",Boolean(viewer));
   if(!viewer)return;
-  document.querySelectorAll("[data-action],[data-toggle],[data-edit],[data-delete],[data-card-edit],[data-contribute],#quickAdd,#voiceAdd").forEach(button=>button.disabled=true);
+  document.querySelectorAll("[data-action],[data-toggle],[data-edit],[data-delete],[data-card-edit],[data-contribute],#quickAdd,#voiceAdd,#statementBtn").forEach(button=>button.disabled=true);
 }
 function queueCloudSave(){
   if(!cloud.client||!cloud.active||cloud.role==="viewer")return;
@@ -350,6 +578,7 @@ $("#monthPick").onclick=()=>{const value=prompt("Digite o mês no formato AAAA-M
 $("#search").oninput=e=>{query=e.target.value;renderExpenses()};$("#filter").onchange=e=>{filter=e.target.value;renderExpenses()};
 $("#modalClose").onclick=closeModal;$("#modalBack").onclick=e=>{if(e.target.id==="modalBack")closeModal()};
 $("#quickAdd").onclick=()=>{if(quickAdd($("#quickInput").value))$("#quickInput").value=""};$("#voiceAdd").onclick=startVoiceExpense;$("#quickInput").onkeydown=e=>{if(e.key==="Enter")$("#quickAdd").click()};
+$("#statementBtn").onclick=()=>$("#statementFile").click();$("#statementFile").onchange=event=>event.target.files[0]&&importStatement(event.target.files[0]);
 $("#aiSend").onclick=()=>{sendAssistant($("#aiInput").value);$("#aiInput").value=""};$("#aiInput").onkeydown=e=>{if(e.key==="Enter")$("#aiSend").click()};document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendAssistant(b.dataset.prompt));
 $("#excelBtn").onclick=exportExcel;$("#pdfBtn").onclick=exportPdf;$("#backupBtn").onclick=exportBackup;$("#restoreBtn").onclick=()=>$("#restoreFile").click();$("#restoreFile").onchange=e=>e.target.files[0]&&restoreBackup(e.target.files[0]);$("#notifyBtn").onclick=enableNotifications;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e});window.addEventListener("appinstalled",()=>$("#installBtn").hidden=true);

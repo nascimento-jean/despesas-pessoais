@@ -11,6 +11,10 @@ investimentos e orçamento familiar.
 - cartões, faturas, metas e limites por categoria;
 - lançamentos manuais, por texto e por voz;
 - relatórios com gráficos em Excel e PDF;
+- importação de faturas em PDF, imagem ou fotografia;
+- OCR para faturas digitalizadas e conferência antes do cadastro;
+- identificação de compras, parcelas, estornos e possíveis duplicidades;
+- categorização inteligente que aprende com as correções do usuário;
 - backup e restauração;
 - instalação no Android, iPhone e computador;
 - modo pessoal, local e offline;
@@ -56,6 +60,23 @@ aparecem nos outros aparelhos em tempo real.
 O modo compartilhado não deve ser usado para guardar número completo do cartão,
 CVV, senhas ou credenciais bancárias.
 
+## Importação de faturas
+
+Em **Cartões → Importar fatura**, selecione um PDF ou imagem de até 20 MB. O
+aplicativo tenta extrair texto diretamente e usa OCR quando o documento é uma
+digitalização. Antes de cadastrar qualquer despesa, apresenta uma tabela
+editável com datas, descrições, categorias, valores, confiança e alertas de
+duplicidade.
+
+O arquivo original é processado temporariamente e não é armazenado. Apenas os
+lançamentos confirmados pelo usuário entram no orçamento. Pagamentos, saldos
+anteriores, totais, estornos e possíveis duplicidades ficam desmarcados para
+revisão.
+
+A análise avançada usa a Edge Function `extract-statement`. A chave da OpenAI
+deve existir somente como segredo da função e nunca em arquivos públicos,
+scripts do navegador ou no GitHub.
+
 ## Ativar a sincronização
 
 O aplicativo usa Supabase para autenticação, banco de dados, permissões e tempo
@@ -71,6 +92,11 @@ real. Para ativar esse recurso na publicação:
 
 Nunca coloque uma chave `service_role` no aplicativo. As políticas RLS do
 arquivo SQL são obrigatórias para impedir que um usuário leia dados de outro.
+
+Para disponibilizar a revisão avançada por IA, publique a função localizada em
+`supabase/functions/extract-statement` e configure `OPENAI_API_KEY` como segredo
+do projeto Supabase. A importação local e o OCR continuam disponíveis quando a
+função não puder ser acessada.
 
 ## Desenvolvimento e validação
 
