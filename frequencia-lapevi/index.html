@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173f3a">
+  <title>Frequência Reunião LAPEVI</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#15302c;background:#edf5f1}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0,#d7eee3 0,transparent 35%),linear-gradient(145deg,#eef7f3,#f8fbf9 65%)}main{width:min(100% - 32px,680px);margin:auto;padding:40px 0}.brand{display:flex;align-items:center;gap:14px;margin-bottom:28px}.mark{width:52px;height:52px;border-radius:16px;background:#173f3a;color:#fff;display:grid;place-items:center;font-weight:900;box-shadow:0 12px 26px #173f3a2b}.brand b{display:block;font-size:1.1rem}.brand span{color:#56746d;font-size:.9rem}.card{background:#fff;border:1px solid #d8e6e1;border-radius:28px;padding:clamp(24px,6vw,48px);box-shadow:0 24px 70px #234e4217}.eyebrow{color:#28806e;font-weight:800;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase}h1{font-size:clamp(2rem,7vw,3.35rem);line-height:1.02;margin:12px 0 16px;letter-spacing:-.045em}p{color:#59736e;line-height:1.65;margin:0 0 26px}label{display:block;font-weight:750;margin-bottom:9px}input{width:100%;border:1.5px solid #bfd4cd;border-radius:15px;padding:16px 17px;font:inherit;font-size:1rem;background:#fbfdfc;color:#15302c;outline:none}input:focus{border-color:#27836f;box-shadow:0 0 0 4px #27836f1c}button{width:100%;border:0;border-radius:15px;margin-top:14px;padding:16px 20px;background:#173f3a;color:#fff;font:inherit;font-weight:800;cursor:pointer;box-shadow:0 12px 24px #173f3a27}.meta{margin-top:22px;padding-top:20px;border-top:1px solid #e3ece8;color:#6b817c;font-size:.86rem}.privacy{font-size:.78rem;color:#718782;margin-top:18px;text-align:center}@media(max-width:520px){main{padding:18px 0}.card{border-radius:22px}}
+  </style>
+</head>
+<body><main>
+  <div class="brand"><div class="mark">LV</div><div><b>LAPEVI</b><span>Registro institucional de participação</span></div></div>
+  <section class="card"><div class="eyebrow">Lista de presença</div><h1>Frequência Reunião LAPEVI</h1><p>Informe seu nome completo para registrar sua participação. A data e o horário serão incluídos automaticamente.</p>
+    <form id="attendanceForm" action="https://formsubmit.co/jeanphellipe.biologo@gmail.com" method="POST">
+      <label for="name">Nome completo</label><input id="name" name="Nome do participante" autocomplete="name" maxlength="120" minlength="3" required placeholder="Digite seu nome completo">
+      <input type="hidden" name="Reunião" value="Reunião LAPEVI">
+      <input type="hidden" name="Data e horário" id="dateTime">
+      <input type="hidden" name="_subject" value="Nova presença — Reunião LAPEVI">
+      <input type="hidden" name="_template" value="table"><input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://nascimento-jean.github.io/despesas-pessoais/frequencia-lapevi/sucesso.html">
+      <button type="submit">Confirmar presença</button>
+    </form>
+    <div class="meta">24 de novembro de 2026 · Horário de Fortaleza</div><div class="privacy">Os dados serão usados exclusivamente para registrar a presença nesta reunião.</div>
+  </section>
+</main><script>document.querySelector('#attendanceForm').addEventListener('submit',()=>{document.querySelector('#dateTime').value=new Date().toLocaleString('pt-BR',{timeZone:'America/Fortaleza'})})</script></body></html>
